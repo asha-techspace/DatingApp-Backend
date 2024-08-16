@@ -22,7 +22,11 @@ const employementSchema=new Schema({
     level:{
         type:String
     }
-})
+    },
+    {
+    timestamps: true,
+     }
+    )
 
 const employementModel = new mongoose.model('Employements',employementSchema);
 export default employementModel

@@ -52,15 +52,11 @@ const profileSchema = new Schema({
       type: String
     },
     doNotShowFor:[{ type:Schema.Types.ObjectId, ref: 'users' }],
-    createdAt: {
-      type: Date,
-      default: Date.now
     },
-    updatedAt: {
-      type: Date,
-      default: Date.now
-    }
-  });
+  {
+    timestamps: true,
+  }
+);
   const ProfileModel = new mongoose.model('Profile', profileSchema);
 
   export default ProfileModel;
