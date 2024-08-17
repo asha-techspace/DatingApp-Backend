@@ -3,7 +3,7 @@ import mongoose, { Schema } from "mongoose";
 const employementSchema=new Schema({
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'users',
+      ref: 'User',
       required: true
     },
     companyName:{
@@ -28,5 +28,5 @@ const employementSchema=new Schema({
      }
     )
 
-const employementModel = new mongoose.model('Employements',employementSchema);
-export default employementModel
+const EmployementModel = new mongoose.model('Employement',employementSchema);
+export default EmployementModel
