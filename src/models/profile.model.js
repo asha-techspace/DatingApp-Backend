@@ -49,6 +49,10 @@ const profileSchema = new Schema({
       url: String
     }
   ],
+  reel: {
+    publicId: String,
+    url: String
+  },
   doNotShowFor: [
     {
       type: Schema.Types.ObjectId,
