@@ -8,7 +8,7 @@ dotenv.config({
 
 databaseConnection();
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 4000;
 
 app.listen(port, () => {
     console.log(`server is up on port ${port}`)

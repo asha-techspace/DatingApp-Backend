@@ -1,15 +1,18 @@
 import passport from "passport";
 import OAuth2Strategy from "passport-google-oauth2";
 import userModel from "../models/user.model.js";
-import jwt from "json-web-token";
+import jwt from "jsonwebtoken";
+import dotenv from 'dotenv';
 
-
+dotenv.config({
+  path: './.env'
+});
 
 passport.use(
   new OAuth2Strategy(
     {
-      clientID: process.env.CLIENT_ID,
-      clientSecret: process.env.CLIENT_SECRET,
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: "/auth/google/callback",
       scope: ["profile", "email"],
     },
@@ -20,17 +23,18 @@ passport.use(
         if (!user) {
           user = new userModel({
             googleId: profile.id,
-            first_name: profile.name.givenName,
-            last_name: profile.name.familyName,
+            firstName: profile.name.givenName,
+            lastName: profile.name.familyName,
             email: profile.emails[0].value,
           });
 
+          user.isVerified = true;
           await user.save();
-          user.isNewUser = true;
         } else {
-          user.isNewUser = false;
+          user.isVerified = false;
+          await user.save();
         }
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+        const token = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET_KEY, {
           expiresIn: "1d",
         });
 
