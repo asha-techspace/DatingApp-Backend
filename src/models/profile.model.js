@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import { relationshipGoals } from "../controllers/profile/relationshipGoalsController";
 
 const profileSchema = new Schema({
   user: {
@@ -50,6 +51,10 @@ const profileSchema = new Schema({
   reel: {
     publicId: String,
     url: String
+  },
+  relationshipGoal: {
+    type: String,
+    required: true
   },
   doNotShowFor: [
     {
