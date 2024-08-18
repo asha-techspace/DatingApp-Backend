@@ -15,4 +15,14 @@ router.route("/login/success").get(loginSuccess);
 
 router.route("/logout").get(logoutUser, handleLogout);
 
+
+// Normal Authentication
+
+import { registerUser, loginUser, forgotPassword } from '../controllers/auth/authController.js';
+
+
+router.post('/register', registerUser);
+router.post('/login', loginUser);
+router.post('/forgot-password', forgotPassword);
+
 export default router;

@@ -2,19 +2,20 @@ import cookieParser from "cookie-parser";
 import express from "express";
 import cors from "cors";
 import userRoute from "./routes/user.routes.js";
-import databaseConnection from "./config/db.config.js";
+import connectDB from "./config/db.config.js";
 import passport from "passport";
-import { Strategy as LocalStrategy } from "passport-local";
+// import { Strategy as LocalStrategy } from "passport-local";
 import session from "express-session";
-import authRoutes from "./routes/auth.routers.js"
-import passportMiddleware from "./middlewares/passport.middleWare.js";
+import authRoutes from "./routes/auth.routers.js";
+
+// import passportMiddleware from "./middlewares/passport.middleWare.js";
 import dotenv from 'dotenv'
 dotenv.config()
 
 const app = new express();
 // dotenv
 
-databaseConnection();
+connectDB();
 
 app.use(
   cors({
@@ -43,6 +44,9 @@ app.use(passport.session());
 // routes
 app.use("/", authRoutes)
 app.use("/api/v1/users", userRoute);
+
+// normal signup-login
+app.use('/api/auth', authRoutes);
 
 
 
