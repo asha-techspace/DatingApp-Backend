@@ -1,5 +1,4 @@
 import mongoose, { Schema } from "mongoose";
-import { relationshipGoals } from "../controllers/profile/relationshipGoalsController";
 
 const profileSchema = new Schema({
   user: {
