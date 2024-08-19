@@ -14,11 +14,9 @@ const profileSchema = new Schema({
   },
   age: {
     type: Number,
-    required: true
   },
   gender: {
     type: String,
-    required: true
   },
   hobbies: {
     type: String
@@ -52,6 +50,10 @@ const profileSchema = new Schema({
   reel: {
     publicId: String,
     url: String
+  },
+  relationshipGoal: {
+    type: String,
+    required: true
   },
   doNotShowFor: [
     {
