@@ -2,8 +2,7 @@ import ProfileModel from "../../models/profile.model.js"
 
 
 export const relationshipGoalsController = async (req, res) => {
-    const { id } = req.params
-
+    const id = req.user._id;
     try {
         const relationshipGoalUpdated = await ProfileModel.findOneAndUpdate({_id: id}, {...req.body}, { new: true })
         return res.status(200).json({

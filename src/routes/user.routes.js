@@ -20,7 +20,7 @@ router.route('/profile-details').post(verifyUser, upload.fields([
     { name: 'reel', maxCount: 1 },
 ]), createProfile);
 
-router.route('/relationship-goals/:id').patch(relationshipGoalsController);
+router.route('/relationship-goals').patch(verifyUser, relationshipGoalsController);
 
 // New route for setting interest
 router.route('/set-interest').patch(verifyUser, setInterest);
