@@ -35,7 +35,8 @@ const profileSchema = new Schema({
     type: String
   },
   genderPreference: {
-    type: String
+    type: String,
+    enum: ['MEN', 'WOMEN', 'BOTH']
   },
   profileImage: {
     publicId: String,
@@ -53,7 +54,6 @@ const profileSchema = new Schema({
   },
   relationshipGoal: {
     type: String,
-    required: true
   },
   doNotShowFor: [
     {
