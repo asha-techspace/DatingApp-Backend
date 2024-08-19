@@ -2,6 +2,7 @@ import { Router } from "express";
 import passport from "passport";
 import { handleGoogleCallback, handleLogout, loginSuccess } from "../controllers/auth/auth.controller.js";
 import { googleAuthCallback, logoutUser } from "../middlewares/googleAuth.middleware.js";
+import { registerUser, loginUser, forgotPassword, resetPassword } from '../controllers/auth/localAuth.controller.js';
 
 const router = Router();
 
@@ -14,5 +15,12 @@ router.route("/auth/google/callback")
 router.route("/login/success").get(loginSuccess);
 
 router.route("/logout").get(logoutUser, handleLogout);
+
+
+// Normal Authentication
+router.route('/signup').post(registerUser)
+router.route('/login').post(loginUser);
+router.route('/forgot-password').post(forgotPassword)
+router.route('/reset-password').patch(resetPassword)
 
 export default router;
