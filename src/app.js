@@ -44,8 +44,6 @@ app.use(passport.session());
 app.use("/", authRoutes)
 app.use("/api/v1/users", userRoute);
 
-// Middleware
-app.use(bodyParser.json());
-app.use(cors());
+
 
 export default app
