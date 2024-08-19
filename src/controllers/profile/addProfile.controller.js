@@ -42,7 +42,8 @@ export const createProfile = async (req, res) => {
             reel: {
                 publicId: reelResponse.public_id,
                 url: reelResponse.url
-            }
+            },
+            relationshipGoal
         });
 
         // Return success response

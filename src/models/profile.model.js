@@ -51,6 +51,10 @@ const profileSchema = new Schema({
     publicId: String,
     url: String
   },
+  relationshipGoal: {
+    type: String,
+    required: true
+  },
   doNotShowFor: [
     {
       type: Schema.Types.ObjectId,
