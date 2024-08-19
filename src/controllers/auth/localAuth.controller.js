@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { sendResetPasswordEmail } from '../../utils/emailService.js';
 import { v4 as uuidv4 } from 'uuid';
 import { generateToken } from '../../utils/generateToken.js';
+import { verificationEmail } from '../../utils/verificationEmail.js';
 
 const cookieOptions = {
     httpOnly: true,
@@ -11,6 +12,9 @@ const cookieOptions = {
     maxAge: 86400000, // 1 day
 };
 
+
+// register user
+
 export const registerUser = async (req, res) => {
     try {
         const { firstName, lastName, email, password } = req.body;
@@ -18,27 +22,78 @@ export const registerUser = async (req, res) => {
             return res.status(400).json({
                 success: false,
                 message: 'All fields are required'
-            })
+            });
         }
+
         const userExists = await UserModel.findOne({ email });
 
         if (userExists) {
-            return res.status(400).json(
-                {
-                    success: false,
-                    message: 'User already exists'
-                }
-            );
+            return res.status(400).json({
+                success: false,
+                message: 'User already exists'
+            });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // Generate and send OTP
+        const otp = Math.floor(100000 + Math.random() * 900000);
+        await verificationEmail({ userEmail: email, otp });
+
+        // Save user data with OTP (not yet activated)
         const user = await UserModel.create({
             firstName,
             lastName,
             email,
             password: hashedPassword,
+            verificationToken: otp,
+            otpExpiry: Date.now() + 300000, // OTP expires in 5 minutes
+            isVerified: false, // User is not verified yet
         });
+
+        res.status(200).json({
+            success: true,
+            message: 'OTP sent to your email. Please verify to complete registration.',
+            isAuthenticated: false
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
+// New function to verify the OTP
+export const verifyOtp = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+        const user = await UserModel.findOne({ email });
+
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        if (user.isVerified) {
+            return res.status(400).json({
+                success: false,
+                message: 'User already verified'
+            });
+        }
+
+        // Check if the OTP matches the stored verificationToken
+        if (user.verificationToken !== otp) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid OTP'
+            });
+        }
+
+        // Mark user as verified and clear the verificationToken
+        user.isVerified = true;
+        user.verificationToken = undefined; // Clear the token after verification
+        await user.save();
 
         const token = generateToken(user._id);
         const userWithoutPassword = await UserModel.findById(user._id).select('-password');
@@ -58,6 +113,10 @@ export const registerUser = async (req, res) => {
     }
 };
 
+
+
+
+// login user
 export const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -90,7 +149,7 @@ export const loginUser = async (req, res) => {
                 tokenExpiry: Date.now() + 86400000, // 1 day
             });
     } catch (error) {
-        console.error('Login error:', error); 
+        console.error('Login error:', error);
         res.status(500).json({ message: error.message });
     }
 };
