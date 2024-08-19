@@ -18,6 +18,8 @@ const cookieOptions = {
 export const registerUser = async (req, res) => {
     try {
         const { firstName, lastName, email, password } = req.body;
+
+        // Check if all required fields are provided
         if ([firstName, lastName, email, password].some(field => !field || field.length === 0)) {
             return res.status(400).json({
                 success: false,
@@ -25,8 +27,8 @@ export const registerUser = async (req, res) => {
             });
         }
 
+        // Check if the user already exists
         const userExists = await UserModel.findOne({ email });
-
         if (userExists) {
             return res.status(400).json({
                 success: false,
@@ -34,32 +36,51 @@ export const registerUser = async (req, res) => {
             });
         }
 
+        // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Generate and send OTP
-        const otp = Math.floor(100000 + Math.random() * 900000);
-        await verificationEmail({ userEmail: email, otp });
+        // Generate a verification token (OTP)
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-        // Save user data with OTP (not yet activated)
+        // Create a new user
         const user = await UserModel.create({
             firstName,
             lastName,
             email,
             password: hashedPassword,
             verificationToken: otp,
-            otpExpiry: Date.now() + 300000, // OTP expires in 5 minutes
-            isVerified: false, // User is not verified yet
+            isVerified: false,
         });
 
-        res.status(200).json({
-            success: true,
-            message: 'OTP sent to your email. Please verify to complete registration.',
-            isAuthenticated: false
-        });
+        // Send the OTP to the user's email
+        await verificationEmail({ userEmail: email, otp });
+
+        // Generate a JWT for the newly registered user
+        const token = generateToken(user._id);
+
+        // Send the response
+        res.status(200)
+            .cookie("token", token, cookieOptions)
+            .json({
+                success: true,
+                message: 'Registered Successfully! OTP sent to your email.',
+                data: {
+                    _id: user._id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    isVerified: user.isVerified,
+                },
+                isAuthenticated: true,  // Not authenticated until OTP is verified
+                token,
+                tokenExpiry: Date.now() + 86400000, // 1 day
+            });
     } catch (error) {
+        console.error('Registration error:', error);
         res.status(500).json({ message: error.message });
     }
 };
+
 
 
 // New function to verify the OTP
