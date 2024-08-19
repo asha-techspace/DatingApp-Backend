@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { sendResetPasswordEmail } from '../../utils/emailService.js';
 import { v4 as uuidv4 } from 'uuid';
 import { generateToken } from '../../utils/generateToken.js';
+import { verificationEmail } from '../../utils/verificationEmail.js';
 
 const cookieOptions = {
     httpOnly: true,
@@ -11,34 +12,109 @@ const cookieOptions = {
     maxAge: 86400000, // 1 day
 };
 
+
+// register user
+
 export const registerUser = async (req, res) => {
     try {
         const { firstName, lastName, email, password } = req.body;
+
+        // Check if all required fields are provided
         if ([firstName, lastName, email, password].some(field => !field || field.length === 0)) {
             return res.status(400).json({
                 success: false,
                 message: 'All fields are required'
-            })
+            });
         }
+
+        // Check if the user already exists
         const userExists = await UserModel.findOne({ email });
-
         if (userExists) {
-            return res.status(400).json(
-                {
-                    success: false,
-                    message: 'User already exists'
-                }
-            );
+            return res.status(400).json({
+                success: false,
+                message: 'User already exists'
+            });
         }
 
+        // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // Generate a verification token (OTP)
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // Create a new user
         const user = await UserModel.create({
             firstName,
             lastName,
             email,
             password: hashedPassword,
+            verificationToken: otp,
+            isVerified: false,
         });
+
+        // Send the OTP to the user's email
+        await verificationEmail({ userEmail: email, otp });
+
+        // Generate a JWT for the newly registered user
+        const token = generateToken(user._id);
+
+        // Send the response
+        res.status(200)
+            .cookie("token", token, cookieOptions)
+            .json({
+                success: true,
+                message: 'Registered Successfully! OTP sent to your email.',
+                data: {
+                    _id: user._id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    isVerified: user.isVerified,
+                },
+                isAuthenticated: true,  // Not authenticated until OTP is verified
+                token,
+                tokenExpiry: Date.now() + 86400000, // 1 day
+            });
+    } catch (error) {
+        console.error('Registration error:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
+
+// New function to verify the OTP
+export const verifyOtp = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+        const user = await UserModel.findOne({ email });
+
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        if (user.isVerified) {
+            return res.status(400).json({
+                success: false,
+                message: 'User already verified'
+            });
+        }
+
+        // Check if the OTP matches the stored verificationToken
+        if (user.verificationToken !== otp) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid OTP'
+            });
+        }
+
+        // Mark user as verified and clear the verificationToken
+        user.isVerified = true;
+        user.verificationToken = undefined; // Clear the token after verification
+        await user.save();
 
         const token = generateToken(user._id);
         const userWithoutPassword = await UserModel.findById(user._id).select('-password');
@@ -58,6 +134,10 @@ export const registerUser = async (req, res) => {
     }
 };
 
+
+
+
+// login user
 export const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -90,7 +170,7 @@ export const loginUser = async (req, res) => {
                 tokenExpiry: Date.now() + 86400000, // 1 day
             });
     } catch (error) {
-        console.error('Login error:', error); 
+        console.error('Login error:', error);
         res.status(500).json({ message: error.message });
     }
 };
