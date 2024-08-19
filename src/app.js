@@ -43,6 +43,7 @@ app.use(passport.session());
 // routes
 app.use("/", authRoutes)
 app.use("/api/v1/users", userRoute);
+app.use('/api/interests',authRoutes)  // intrests
 
 
 

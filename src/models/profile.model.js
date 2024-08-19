@@ -18,15 +18,21 @@ const profileSchema = new Schema({
   gender: {
     type: String,
   },
+  interest: {
+    type: String,
+    required: true,
+    enum: ['MEN', 'WOMEN', 'BOTH']
+},
   hobbies: {
     type: String
   },
   qualification: {
     type: String,
-    required: true
+    // required: true
   },
   interests: {
-    type: [String]
+    type: [String],
+  
   },
   drinking: {
     type: String
@@ -63,5 +69,9 @@ const profileSchema = new Schema({
   }
 );
 const ProfileModel = new mongoose.model('Profile', profileSchema);
-
 export default ProfileModel;
+
+
+
+
+
