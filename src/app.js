@@ -4,10 +4,8 @@ import cors from "cors";
 import userRoute from "./routes/user.routes.js";
 import databaseConnection from "./config/db.config.js";
 import passport from "passport";
-import { Strategy as LocalStrategy } from "passport-local";
 import session from "express-session";
 import authRoutes from "./routes/auth.routers.js"
-import passportMiddleware from "./middlewares/passport.middleWare.js";
 import dotenv from 'dotenv'
 dotenv.config()
 

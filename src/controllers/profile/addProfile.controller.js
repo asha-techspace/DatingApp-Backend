@@ -4,7 +4,6 @@ import uploadOnCloudinary from "../../utils/uploadOnCloudinary.js";
 export const createProfile = async (req, res) => {
     try {
         const { dob, hobbies, qualification, interests, drinking, smoking } = req.body;
-        // console.log(req.files)
         const profile = req?.files?.profile[0];
         const additionalImages = req?.files?.additionalImg;
         const reel = req?.files?.reel[0];
@@ -16,6 +15,7 @@ export const createProfile = async (req, res) => {
         }
         const profileResponse = await uploadOnCloudinary(profile?.path, profile?.filename, 'image');
         const reelResponse = await uploadOnCloudinary(reel?.path, reel?.filename, 'video');
+        
         // Upload additional images to Cloudinary concurrently
         const uploadPromises = additionalImages.map((img) =>
             uploadOnCloudinary(img.path, img.filename).then((response) => ({
@@ -25,7 +25,6 @@ export const createProfile = async (req, res) => {
         );
         const additionalImageArr = await Promise.all(uploadPromises);
 
-        // Create a new profile document in the profiles collection 
         const newProfile = await ProfileModel.create({
             user: req.user._id,
             dob,
@@ -43,10 +42,8 @@ export const createProfile = async (req, res) => {
                 publicId: reelResponse.public_id,
                 url: reelResponse.url
             },
-            relationshipGoal
         });
 
-        // Return success response
         return res.status(200).json({
             success: true,
             message: "Profile created successfully",
