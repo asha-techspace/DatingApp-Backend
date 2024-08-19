@@ -95,29 +95,6 @@ export const loginUser = async (req, res) => {
     }
 };
 
-// export const forgotPassword = async (req, res) => {
-//     const { email } = req.body;
-
-//     try {
-//         const user = await UserModel.findOne({ email });
-
-//         if (!user) {
-//             return res.status(404).json({ message: 'User not found' });
-//         }
-
-//         const resetToken = generateToken(user._id);
-//         user.forgotPasswordToken = resetToken;
-//         user.forgotPasswordExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
-//         await user.save();
-
-//         await sendResetPasswordEmail(user.email, resetToken);
-
-//         res.status(200).json({ message: 'Password reset email sent' });
-//     } catch (error) {
-//         res.status(500).json({ message: error.message });
-//     }
-// };
-
 export const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;

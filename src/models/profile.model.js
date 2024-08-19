@@ -14,11 +14,9 @@ const profileSchema = new Schema({
   },
   age: {
     type: Number,
-    required: true
   },
   gender: {
     type: String,
-    required: true
   },
   hobbies: {
     type: String
