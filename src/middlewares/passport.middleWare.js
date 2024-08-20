@@ -33,7 +33,7 @@ passport.use(
                     user.isVerified = true; // Assuming initial verification  
                     await user.save();  
                 } else {
-                    user.googleSignup = true;
+                    user.googleSignup = false;
                     await user.save();  
                 }
 
