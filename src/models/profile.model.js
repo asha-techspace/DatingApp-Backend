@@ -14,11 +14,9 @@ const profileSchema = new Schema({
   },
   age: {
     type: Number,
-    required: true
   },
   gender: {
     type: String,
-    required: true
   },
   hobbies: {
     type: String
@@ -37,7 +35,8 @@ const profileSchema = new Schema({
     type: String
   },
   genderPreference: {
-    type: String
+    type: String,
+    enum: ['MEN', 'WOMEN', 'BOTH']
   },
   profileImage: {
     publicId: String,
@@ -52,6 +51,9 @@ const profileSchema = new Schema({
   reel: {
     publicId: String,
     url: String
+  },
+  relationshipGoal: {
+    type: String,
   },
   doNotShowFor: [
     {

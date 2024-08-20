@@ -1,0 +1,270 @@
+import UserModel from '../../models/user.model.js';
+import bcrypt from 'bcryptjs';
+import { sendResetPasswordEmail } from '../../utils/emailService.js';
+import { v4 as uuidv4 } from 'uuid';
+import { generateToken } from '../../utils/generateToken.js';
+import { verificationEmail } from '../../utils/verificationEmail.js';
+import otpGenerator from 'otp-generator';
+
+
+const cookieOptions = {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none"
+};
+
+
+
+// Temporary storage for OTPs
+const otpStore = {};  // This is a simple in-memory store. Replace it with Redis or similar for production.
+
+// Generate OTP and Send to Email
+export const generateOtpAndSend = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        // Generate a new 6-digit numeric OTP
+        const otp = otpGenerator.generate(6, {
+            upperCaseAlphabets: false,
+            specialChars: false,
+            lowerCaseAlphabets: false
+        });
+
+        // Store OTP and email temporarily
+        otpStore[email] = otp;
+
+
+        // Send the OTP to the user's email
+        await verificationEmail({ userEmail: email, otp });
+
+        return res.status(200).json({
+            success: true,
+            message: 'OTP sent to your email',
+        });
+    } catch (error) {
+        console.error('OTP generation error:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
+// Registration function that includes OTP verification
+export const registerUser = async (req, res) => {
+    try {
+        const { firstName, lastName, email, password, otp } = req.body;
+        console.log("otp:", otp, "email:", email);
+        console.log(otpStore);
+        console.log(password);
+        console.log(firstName);
+
+        // Check if all required fields are provided
+        if (!firstName || !lastName || !email || !password || !otp) {
+            return res.status(400).json({
+                success: false,
+                message: 'All fields are required'
+            });
+        }
+
+        // Check if the OTP is correct
+        if (otpStore[email] !== otp) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid OTP'
+            });
+        }
+
+        // OTP is correct, proceed with registration
+        let user = await UserModel.findOne({ email });
+
+        if (user) {
+            return res.status(400).json({
+                success: false,
+                message: 'User already exists'
+            });
+        }
+
+        // Create a new user
+        user = await UserModel.create({
+            firstName,
+            lastName,
+            email,
+            password: await bcrypt.hash(password, 10),
+            isVerified: true,  // Mark user as verified since OTP was correct
+        });
+
+        // Generate JWT token
+        const token = generateToken(user._id);
+
+        // Remove OTP from store after successful registration
+        delete otpStore[email];
+
+        return res.status(201)
+            .cookie("token", token, cookieOptions)
+            .json({
+                success: true,
+                message: 'Registration successful!',
+                data: {
+                    _id: user._id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    isVerified: user.isVerified,
+                },
+                isAuthenticated: true,
+                token,
+                tokenExpiry: Date.now() + 86400000, // 1 day
+            });
+    } catch (error) {
+        console.error('Registration error:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
+
+
+
+
+
+// login user
+export const loginUser = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: 'All fields are required'
+            });
+        }
+
+        const user = await UserModel.findOne({ email });
+
+        if (!user || !(await bcrypt.compare(password, user.password))) {
+            return res.status(401).json({ message: 'Invalid email or password' });
+        }
+
+        const token = generateToken(user._id);
+
+        const userWithoutPassword = await UserModel.findById(user._id).select('-password');
+
+        res.status(200)
+            .cookie("token", token, cookieOptions)
+            .json({
+                success: true,
+                message: 'Login Successfully!',
+                data: userWithoutPassword,
+                isAuthenticated: true,
+                token,
+                tokenExpiry: Date.now() + 86400000, // 1 day
+            });
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// export const forgotPassword = async (req, res) => {
+//     const { email } = req.body;
+
+//     try {
+//         const user = await UserModel.findOne({ email });
+
+//         if (!user) {
+//             return res.status(404).json({ message: 'User not found' });
+//         }
+
+//         const resetToken = generateToken(user._id);
+//         user.forgotPasswordToken = resetToken;
+//         user.forgotPasswordExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
+//         await user.save();
+
+//         await sendResetPasswordEmail(user.email, resetToken);
+
+//         res.status(200).json({ message: 'Password reset email sent' });
+//     } catch (error) {
+//         res.status(500).json({ message: error.message });
+//     }
+// };
+
+export const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await UserModel.findOne({ email });
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            })
+        }
+        const token = uuidv4();
+        user.forgotPasswordToken = token;
+        user.forgotPasswordExpiry = Date.now() + 300000;
+        await user.save();
+        const response = await sendResetPasswordEmail({
+            userEmail: user.email,
+            token,
+            userId: user._id,
+        })
+        console.log(response)
+        return res.status(200).json({
+            success: true,
+            message: "Check your email",
+            response
+        })
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+export const resetPassword = async (req, res) => {
+    try {
+        const { user, token } = req.query; // Correctly accessing req.query
+        console.log('query', req.query); // Log req.query to verify inputs
+
+        const { password } = req.body;
+        if (!password) {
+            return res.status(400).json({
+                success: false,
+                message: "Password is required"
+            });
+        }
+        if (!user || !token) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid Link"
+            });
+        }
+        const userInfo = await UserModel.findById(user);
+        if (!userInfo) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+        if (token === userInfo.forgotPasswordToken && userInfo.forgotPasswordExpiry > Date.now()) {
+            userInfo.password = await bcrypt.hash(password, 10);
+            userInfo.forgotPasswordToken = undefined;
+            userInfo.forgotPasswordExpiry = undefined;
+            await userInfo.save();
+            return res.status(200).json({
+                success: true,
+                message: "Password updated successfully"
+            });
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid token"
+            });
+        }
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};

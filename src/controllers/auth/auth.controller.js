@@ -13,10 +13,20 @@ export const loginSuccess = async (req, res) => {
       return res.redirect("http://localhost:5173/login");
     }
   
-    if (user.isVerified) {
-      return res.redirect(`http://localhost:5173/home`);
+    if (user.googleSignup) {
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none"
+    })
+      return res.redirect(`http://localhost:5173/personal_details`)
     } else {
-      return res.redirect(`http://localhost:5173/service?token=${token}`);
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none"
+    })
+      return res.redirect(`http://localhost:5173/home`);
     }
   };
   
