@@ -5,6 +5,7 @@ import { createProfile } from "../controllers/profile/addProfile.controller.js";
 import upload from "../middlewares/multer.middleware.js";
 import { relationshipGoalsController } from "../controllers/profile/relationshipGoalsController.js";
 import { setInterest } from "../controllers/profile/interest.controller.js";
+import { jobDetails, moreJobDetails } from "../controllers/profile/personalDetails.js";
 
 const router = new Router();
 
@@ -24,5 +25,11 @@ router.route('/relationship-goals').patch(verifyUser, relationshipGoalsControlle
 
 // New route for setting interest
 router.route('/set-interest').patch(verifyUser, setInterest);
+
+//job details
+router.post('/job_details',verifyUser, jobDetails);
+router.post('/more_job_details',verifyUser, moreJobDetails);
+
+
 
 export default router;
