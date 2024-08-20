@@ -7,9 +7,8 @@ import { verificationEmail } from '../../utils/verificationEmail.js';
 
 const cookieOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production', // Set to true in production
-    sameSite: 'strict', // Adjust as needed
-    maxAge: 86400000, // 1 day
+    secure: true,
+    sameSite: "none"
 };
 
 

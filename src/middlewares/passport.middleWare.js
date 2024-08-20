@@ -4,6 +4,7 @@ import OAuth2Strategy from 'passport-google-oauth2';
 import userModel from '../models/user.model.js'; // Adjust path as needed  
 import jwt from 'jsonwebtoken';  
 import dotenv from 'dotenv';  
+import { generateToken } from '../utils/generateToken.js';
 
 dotenv.config({  
     path: './.env'   
@@ -28,14 +29,15 @@ passport.use(
                         lastName: profile.name.familyName,  
                         email: profile.emails[0].value,  
                     });  
-
+                    user.googleSignup = true;
                     user.isVerified = true; // Assuming initial verification  
                     await user.save();  
-                } 
+                } else {
+                    user.googleSignup = true;
+                    await user.save();  
+                }
 
-                const token = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET_KEY, {  
-                    expiresIn: '1d',  
-                });  
+                const token = generateToken(user?._id);
 
                 return done(null, { user, token }); // Pass user and token data  
             } catch (error) {  

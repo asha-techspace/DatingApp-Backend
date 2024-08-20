@@ -33,6 +33,9 @@ const userSchema = new Schema(
         refreshToken: {
             type: String,
         },
+        googleSignup: {
+            type: Boolean,
+        },
         isVerified: {
             type: Boolean,
             default: false
