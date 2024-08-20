@@ -6,12 +6,14 @@ import { generateToken } from '../../utils/generateToken.js';
 import { verificationEmail } from '../../utils/verificationEmail.js';
 import otpGenerator from 'otp-generator';
 
+
 const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production', // Set to true in production
     sameSite: 'strict', // Adjust as needed
     maxAge: 86400000, // 1 day
 };
+
 
 
 // Temporary storage for OTPs
@@ -51,9 +53,18 @@ export const generateOtpAndSend = async (req, res) => {
 export const registerUser = async (req, res) => {
     try {
         const { firstName, lastName, email, password, otp } = req.body;
-        console.log(otp, email);
+        console.log("otp:", otp, "email:", email);
         console.log(otpStore);
+        console.log(password);
+        console.log(firstName);
 
+        // Check if all required fields are provided
+        if (!firstName || !lastName || !email || !password || !otp) {
+            return res.status(400).json({
+                success: false,
+                message: 'All fields are required'
+            });
+        }
 
         // Check if the OTP is correct
         if (otpStore[email] !== otp) {
