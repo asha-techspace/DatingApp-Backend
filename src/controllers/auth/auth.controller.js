@@ -14,7 +14,7 @@ export const loginSuccess = async (req, res) => {
     }
   
     if (user.isVerified) {
-      return res.redirect(`http://localhost:5173/home`);
+      return res.redirect(`http://localhost:5173/personal_details`);
     } else {
       return res.redirect(`http://localhost:5173/service?token=${token}`);
     }

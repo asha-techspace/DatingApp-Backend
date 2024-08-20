@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import userRoute from "./routes/user.routes.js";
 import databaseConnection from "./config/db.config.js";
-import passport from "passport";
+import passport from './middlewares/passport.middleWare.js'
 import session from "express-session";
 import authRoutes from "./routes/auth.routers.js"
 import dotenv from 'dotenv'
