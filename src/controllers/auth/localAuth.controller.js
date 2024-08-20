@@ -4,6 +4,7 @@ import { sendResetPasswordEmail } from '../../utils/emailService.js';
 import { v4 as uuidv4 } from 'uuid';
 import { generateToken } from '../../utils/generateToken.js';
 import { verificationEmail } from '../../utils/verificationEmail.js';
+import otpGenerator from 'otp-generator';
 
 const cookieOptions = {
     httpOnly: true,
@@ -13,57 +14,85 @@ const cookieOptions = {
 };
 
 
-// register user
+// Temporary storage for OTPs
+const otpStore = {};  // This is a simple in-memory store. Replace it with Redis or similar for production.
 
+// Generate OTP and Send to Email
+export const generateOtpAndSend = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        // Generate a new 6-digit numeric OTP
+        const otp = otpGenerator.generate(6, {
+            upperCaseAlphabets: false,
+            specialChars: false,
+            lowerCaseAlphabets: false
+        });
+
+        // Store OTP and email temporarily
+        otpStore[email] = otp;
+
+
+        // Send the OTP to the user's email
+        await verificationEmail({ userEmail: email, otp });
+
+        return res.status(200).json({
+            success: true,
+            message: 'OTP sent to your email',
+        });
+    } catch (error) {
+        console.error('OTP generation error:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
+// Registration function that includes OTP verification
 export const registerUser = async (req, res) => {
     try {
-        const { firstName, lastName, email, password } = req.body;
+        const { firstName, lastName, email, password, otp } = req.body;
+        console.log(otp, email);
+        console.log(otpStore);
 
-        // Check if all required fields are provided
-        if ([firstName, lastName, email, password].some(field => !field || field.length === 0)) {
+
+        // Check if the OTP is correct
+        if (otpStore[email] !== otp) {
             return res.status(400).json({
                 success: false,
-                message: 'All fields are required'
+                message: 'Invalid OTP'
             });
         }
 
-        // Check if the user already exists
-        const userExists = await UserModel.findOne({ email });
-        if (userExists) {
+        // OTP is correct, proceed with registration
+        let user = await UserModel.findOne({ email });
+
+        if (user) {
             return res.status(400).json({
                 success: false,
                 message: 'User already exists'
             });
         }
 
-        // Hash the password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Generate a verification token (OTP)
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
         // Create a new user
-        const user = await UserModel.create({
+        user = await UserModel.create({
             firstName,
             lastName,
             email,
-            password: hashedPassword,
-            verificationToken: otp,
-            isVerified: false,
+            password: await bcrypt.hash(password, 10),
+            isVerified: true,  // Mark user as verified since OTP was correct
         });
 
-        // Send the OTP to the user's email
-        await verificationEmail({ userEmail: email, otp });
-
-        // Generate a JWT for the newly registered user
+        // Generate JWT token
         const token = generateToken(user._id);
 
-        // Send the response
-        res.status(200)
+        // Remove OTP from store after successful registration
+        delete otpStore[email];
+
+        return res.status(201)
             .cookie("token", token, cookieOptions)
             .json({
                 success: true,
-                message: 'Registered Successfully! OTP sent to your email.',
+                message: 'Registration successful!',
                 data: {
                     _id: user._id,
                     firstName: user.firstName,
@@ -71,7 +100,7 @@ export const registerUser = async (req, res) => {
                     email: user.email,
                     isVerified: user.isVerified,
                 },
-                isAuthenticated: true,  // Not authenticated until OTP is verified
+                isAuthenticated: true,
                 token,
                 tokenExpiry: Date.now() + 86400000, // 1 day
             });
@@ -83,56 +112,6 @@ export const registerUser = async (req, res) => {
 
 
 
-// New function to verify the OTP
-export const verifyOtp = async (req, res) => {
-    try {
-        const { email, otp } = req.body;
-        const user = await UserModel.findOne({ email });
-
-        if (!user) {
-            return res.status(400).json({
-                success: false,
-                message: 'User not found'
-            });
-        }
-
-        if (user.isVerified) {
-            return res.status(400).json({
-                success: false,
-                message: 'User already verified'
-            });
-        }
-
-        // Check if the OTP matches the stored verificationToken
-        if (user.verificationToken !== otp) {
-            return res.status(400).json({
-                success: false,
-                message: 'Invalid OTP'
-            });
-        }
-
-        // Mark user as verified and clear the verificationToken
-        user.isVerified = true;
-        user.verificationToken = undefined; // Clear the token after verification
-        await user.save();
-
-        const token = generateToken(user._id);
-        const userWithoutPassword = await UserModel.findById(user._id).select('-password');
-
-        res.status(201)
-            .cookie("token", token, cookieOptions)
-            .json({
-                success: true,
-                message: 'Registered Successfully!',
-                data: userWithoutPassword,
-                isAuthenticated: true,
-                token,
-                tokenExpiry: Date.now() + 86400000, // 1 day
-            });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
 
 
 
@@ -174,6 +153,29 @@ export const loginUser = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// export const forgotPassword = async (req, res) => {
+//     const { email } = req.body;
+
+//     try {
+//         const user = await UserModel.findOne({ email });
+
+//         if (!user) {
+//             return res.status(404).json({ message: 'User not found' });
+//         }
+
+//         const resetToken = generateToken(user._id);
+//         user.forgotPasswordToken = resetToken;
+//         user.forgotPasswordExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
+//         await user.save();
+
+//         await sendResetPasswordEmail(user.email, resetToken);
+
+//         res.status(200).json({ message: 'Password reset email sent' });
+//     } catch (error) {
+//         res.status(500).json({ message: error.message });
+//     }
+// };
 
 export const forgotPassword = async (req, res) => {
     try {

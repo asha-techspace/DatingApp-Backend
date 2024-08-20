@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registerUser, verifyOtp, loginUser } from "../controllers/auth/localAuth.controller.js";
+import { registerUser, generateOtpAndSend, loginUser } from "../controllers/auth/localAuth.controller.js";
 import { verifyUser } from "../middlewares/verifyjwt.middleware.js";
 import { createProfile } from "../controllers/profile/addProfile.controller.js";
 import upload from "../middlewares/multer.middleware.js";
@@ -9,7 +9,7 @@ const router = new Router();
 
 // Routes from emailotp branch
 router.route("/register").post(registerUser);
-router.route("/verify-otp").post(verifyOtp);
+router.route("/generateotp").post(generateOtpAndSend);
 router.route("/login").post(loginUser);
 
 // Routes from main branch
