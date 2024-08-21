@@ -14,13 +14,15 @@ const employementSchema=new Schema({
     },
     employement:{
         type:String,
-        required:true
     },
     location:{
         type:String
     },
     level:{
         type:String
+    },
+    title: {
+        type: String,
     }
     },
     {

@@ -28,7 +28,7 @@ router.route('/set-interest').patch(verifyUser, setInterest);
 
 //job details
 router.post('/job_details',verifyUser, jobDetails);
-router.post('/more_job_details',verifyUser, moreJobDetails);
+router.patch('/more_job_details',verifyUser, moreJobDetails);
 
 
 
