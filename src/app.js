@@ -6,9 +6,12 @@ import databaseConnection from "./config/db.config.js";
 import passport from './middlewares/passport.middleWare.js'
 import session from "express-session";
 import authRoutes from "./routes/auth.routers.js"
+import locationRouter from "./routes/location.routers.js"
+
+
+
 import dotenv from 'dotenv'
 dotenv.config()
-
 
 const app = new express();
 // dotenv
@@ -43,6 +46,7 @@ app.use(passport.session());
 app.use("/", authRoutes)
 app.use("/api/v1/users", userRoute);
 
+app.use("/location", locationRouter)
 
 
 export default app
