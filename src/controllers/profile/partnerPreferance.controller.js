@@ -1,5 +1,4 @@
-import PartnerPreferenceModel from '../models/partnerPreferenceModel.js';  // Adjust the import path as necessary
-
+import PartnerPreferenceModel from "../../models/partnerPreferance.model.js";
 
 const createPartnerPreference = async (req, res) => {
   try {
