@@ -6,11 +6,8 @@ import upload from "../middlewares/multer.middleware.js";
 import { relationshipGoalsController } from "../controllers/profile/relationshipGoalsController.js";
 import { setInterest } from "../controllers/profile/interest.controller.js";
 import { jobDetails, moreJobDetails } from "../controllers/profile/personalDetails.js";
-import { getProfilesByQualification } from "../controllers/profile/profileController.js";
-import { getUserIdsAndQualifications } from '../controllers/profile/UserIdsAndQualifications.js';
 import { createPartnerPreference, deletePartnerPreference, getPartnerPreferenceById, updatePartnerPreference } from "../controllers/profile/partnerPreferance.controller.js";
 import { getProfileByDesigination } from "../controllers/profileDesigination/ProfileDesigantion.controller.js";
-
 const router = new Router();
 
 // Routes from emailotp branch
@@ -30,23 +27,18 @@ router.route('/relationship-goals').patch(verifyUser, relationshipGoalsControlle
 // New route for setting interest
 router.route('/set-interest').patch(verifyUser, setInterest);
 
-// Job details
+//job details
 router.post('/job_details', verifyUser, jobDetails);
 router.patch('/more_job_details', verifyUser, moreJobDetails);
 
-// Partner preferences
+//partner preferences
 router.post('/preferences', createPartnerPreference);
 router.get('/preferences/:id', getPartnerPreferenceById);
 router.put('/preferences/:id', updatePartnerPreference);
 router.delete('/preferences/:id', deletePartnerPreference);
 
-// Get profile by designation
-router.get('/profile/designations/:designation', getProfileByDesigination);
+//get profile by desigination
+router.get('/profile/designations/:designation',getProfileByDesigination)
 
-// Get profiles based on qualification
-router.get('/qualification', getProfilesByQualification);
-
-// Route to get all user IDs and qualifications
-router.get('/user-qualifications', getUserIdsAndQualifications);
 
 export default router;
