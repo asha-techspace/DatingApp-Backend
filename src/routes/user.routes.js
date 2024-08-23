@@ -7,6 +7,7 @@ import { relationshipGoalsController } from "../controllers/profile/relationship
 import { setInterest } from "../controllers/profile/interest.controller.js";
 import { jobDetails, moreJobDetails } from "../controllers/profile/personalDetails.js";
 import { createPartnerPreference, deletePartnerPreference, getPartnerPreferenceById, updatePartnerPreference } from "../controllers/profile/partnerPreferance.controller.js";
+import { getProfileByDesigination } from "../controllers/profileDesigination/ProfileDesigantion.controller.js";
 const router = new Router();
 
 // Routes from emailotp branch
@@ -36,6 +37,8 @@ router.get('/preferences/:id', getPartnerPreferenceById);
 router.put('/preferences/:id', updatePartnerPreference);
 router.delete('/preferences/:id', deletePartnerPreference);
 
+//get profile by desigination
+router.get('/profile/designations/:designation',getProfileByDesigination)
 
 
 export default router;
