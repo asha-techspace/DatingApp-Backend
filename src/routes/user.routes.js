@@ -6,6 +6,8 @@ import upload from "../middlewares/multer.middleware.js";
 import { relationshipGoalsController } from "../controllers/profile/relationshipGoalsController.js";
 import { setInterest } from "../controllers/profile/interest.controller.js";
 import { jobDetails, moreJobDetails } from "../controllers/profile/personalDetails.js";
+import { getProfilesByQualification } from "../controllers/profile/profileController.js"
+import { getUserIdsAndQualifications } from '../controllers/profile/UserIdsAndQualifications.js';
 
 const router = new Router();
 
@@ -30,6 +32,13 @@ router.route('/set-interest').patch(verifyUser, setInterest);
 router.post('/job_details',verifyUser, jobDetails);
 router.patch('/more_job_details',verifyUser, moreJobDetails);
 
+
+//  get profiles based on qualification
+router.get('/qualification', getProfilesByQualification);
+
+
+// Route to get all user IDs and qualifications
+router.get('/user-qualifications', getUserIdsAndQualifications);
 
 
 export default router;

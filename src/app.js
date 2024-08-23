@@ -10,9 +10,9 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 const app = new express();
-// dotenv
 
-databaseConnection();
+
+
 
 app.use(
   cors({
@@ -41,6 +41,9 @@ app.use(passport.session());
 // routes
 app.use("/", authRoutes)
 app.use("/api/v1/users", userRoute);
+
+// profileRoutes
+// app.use('/api/profile',userRoute);
 
 
 
