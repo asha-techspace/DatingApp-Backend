@@ -55,10 +55,6 @@ const profileSchema = new Schema({
   relationshipGoal: {
     type: String,
   },
- isActive: {
-    type: Boolean,
-    default: false
-  },
   doNotShowFor: [
     {
       type: Schema.Types.ObjectId,

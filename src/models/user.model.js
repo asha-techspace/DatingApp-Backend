@@ -18,6 +18,10 @@ const userSchema = new Schema(
             required: true,
             unique: true
         },
+        isActive: {
+           type: Boolean,
+           default: false
+         },
         contact: {
             type: Number,
             unique: true,
