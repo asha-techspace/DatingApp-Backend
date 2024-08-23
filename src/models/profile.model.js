@@ -12,6 +12,9 @@ const profileSchema = new Schema({
   bio: {
     type: String
   },
+  location: {
+    type: String
+  },
   age: {
     type: Number,
   },
