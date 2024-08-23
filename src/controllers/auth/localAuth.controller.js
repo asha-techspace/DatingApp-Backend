@@ -244,5 +244,35 @@ export const resetPassword = async (req, res) => {
     }
 };
 
-
-
+export const logout = async (req, res) => {
+    try {
+        console.log(req.user)
+        const user = await UserModel.findById(req?.user?._id);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+        user.isActive = false;
+        await user.save();
+        res.cookie("token", "", {
+            httpOnly: true,
+            expires: new Date(Date.now()), // Expire the cookie immediately
+        })
+        res.cookie("connect.sid", "", {
+            httpOnly: true,
+            expires: new Date(0), 
+        });
+        return res.status(200).json({
+            success: true,
+            isAuthenticated: false,
+            message: "User successfully logged out"
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+}
