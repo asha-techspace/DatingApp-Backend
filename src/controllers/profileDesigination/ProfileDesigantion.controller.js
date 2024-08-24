@@ -7,7 +7,10 @@ export const getProfileByDesigination =async(req,res)=>{
     const {designation} = req.params;
     console.log(designation)
     try{
-        const employes = await EmploymentModel.find({designation});
+
+        const regex = new RegExp(designation, 'i'); // 'i' makes it case-insensitive
+        
+        const employes = await EmploymentModel.find({ designation: { $regex: regex } });
         console.log(employes)
 
         const userIds = employes.map((employment) => employment.user);
