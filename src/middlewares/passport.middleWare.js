@@ -30,10 +30,12 @@ passport.use(
                         email: profile.emails[0].value,  
                     });  
                     user.googleSignup = true;
+                    user.isActive = true;
                     user.isVerified = true; // Assuming initial verification  
                     await user.save();  
                 } else {
                     user.googleSignup = false;
+                    user.isActive = true;
                     await user.save();  
                 }
 

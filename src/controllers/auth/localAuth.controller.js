@@ -89,7 +89,8 @@ export const registerUser = async (req, res) => {
             lastName,
             email,
             password: await bcrypt.hash(password, 10),
-            isVerified: true,  // Mark user as verified since OTP was correct
+            isVerified: true, 
+            isActive: true // Mark user as verified since OTP was correct
         });
 
         // Generate JWT token
@@ -109,6 +110,7 @@ export const registerUser = async (req, res) => {
                     lastName: user.lastName,
                     email: user.email,
                     isVerified: user.isVerified,
+                    isActive: user.isActive,
                 },
                 isAuthenticated: true,
                 token,
@@ -119,11 +121,6 @@ export const registerUser = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-
-
-
-
-
 
 
 // login user
@@ -147,7 +144,8 @@ export const loginUser = async (req, res) => {
         const token = generateToken(user._id);
 
         const userWithoutPassword = await UserModel.findById(user._id).select('-password');
-
+        userWithoutPassword.isActive = true;
+        await userWithoutPassword.save();
         res.status(200)
             .cookie("token", token, cookieOptions)
             .json({
@@ -163,29 +161,6 @@ export const loginUser = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-
-// export const forgotPassword = async (req, res) => {
-//     const { email } = req.body;
-
-//     try {
-//         const user = await UserModel.findOne({ email });
-
-//         if (!user) {
-//             return res.status(404).json({ message: 'User not found' });
-//         }
-
-//         const resetToken = generateToken(user._id);
-//         user.forgotPasswordToken = resetToken;
-//         user.forgotPasswordExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
-//         await user.save();
-
-//         await sendResetPasswordEmail(user.email, resetToken);
-
-//         res.status(200).json({ message: 'Password reset email sent' });
-//     } catch (error) {
-//         res.status(500).json({ message: error.message });
-//     }
-// };
 
 export const forgotPassword = async (req, res) => {
     try {
@@ -269,5 +244,35 @@ export const resetPassword = async (req, res) => {
     }
 };
 
-
-
+export const logout = async (req, res) => {
+    try {
+        console.log(req.user)
+        const user = await UserModel.findById(req?.user?._id);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+        user.isActive = false;
+        await user.save();
+        res.cookie("token", "", {
+            httpOnly: true,
+            expires: new Date(Date.now()), // Expire the cookie immediately
+        })
+        res.cookie("connect.sid", "", {
+            httpOnly: true,
+            expires: new Date(0), 
+        });
+        return res.status(200).json({
+            success: true,
+            isAuthenticated: false,
+            message: "User successfully logged out"
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+}
