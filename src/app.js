@@ -12,7 +12,6 @@ dotenv.config()
 const app = new express();
 // dotenv
 
-databaseConnection();
 
 app.use(
   cors({
