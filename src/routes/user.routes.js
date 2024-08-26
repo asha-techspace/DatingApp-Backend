@@ -8,6 +8,7 @@ import { setInterest } from "../controllers/profile/interest.controller.js";
 import { jobDetails, moreJobDetails } from "../controllers/profile/personalDetails.js";
 import { createPartnerPreference, deletePartnerPreference, getPartnerPreferenceById, updatePartnerPreference } from "../controllers/profile/partnerPreferance.controller.js";
 import { getProfileByDesigination } from "../controllers/profileDesigination/ProfileDesigantion.controller.js";
+import { findNearByUser, getLocation } from "../controllers/location/location.controller.js";
 const router = new Router();
 
 // Routes from emailotp branch
@@ -39,6 +40,11 @@ router.delete('/preferences/:id', deletePartnerPreference);
 
 //get profile by desigination
 router.get('/profile/designations/:designation',getProfileByDesigination)
+
+//get profile by location
+
+router.post('/getlocation',verifyUser,getLocation)
+router.get('/findNearByUsers',verifyUser, findNearByUser)
 
 
 export default router;
