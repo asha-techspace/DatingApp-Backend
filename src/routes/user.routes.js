@@ -40,8 +40,7 @@ router.put('/preferences/:id', updatePartnerPreference);
 router.delete('/preferences/:id', deletePartnerPreference);
 
 //get profile by desigination
-router.get('/profile/designations/:designation',getProfileByDesigination)
-
+router.get('/profile/designations',verifyUser,getProfileByDesigination)
 //get profile by Qualification
 router.get('/profile/qualification',verifyUser,getProfileByQualification)
 
