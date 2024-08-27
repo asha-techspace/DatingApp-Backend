@@ -66,12 +66,12 @@ export const registerUser = async (req, res) => {
         }
 
         // Check if the OTP is correct
-        if (otpStore[email] !== otp) {
+       /*  if (otpStore[email] !== otp) {
             return res.status(400).json({
                 success: false,
                 message: 'Invalid OTP'
             });
-        }
+        } */
 
         // OTP is correct, proceed with registration
         let user = await UserModel.findOne({ email });
