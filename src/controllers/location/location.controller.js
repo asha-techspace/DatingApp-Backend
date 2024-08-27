@@ -1,4 +1,5 @@
 import locationModel from '../../models/location.model.js';
+import ProfileModel from '../../models/profile.model.js';
 
 export const getLocation = async (req, res) => {
   const { latitude, longitude } = req.body;
@@ -54,11 +55,12 @@ export const findNearByUser = async (req, res) => {
         },
       },
       user: { $ne: currentUser },
-    }).populate('user');
+    })
 
-    const users = nearByUsers.map(userLocation => userLocation.user);
+    const userIds = nearByUsers.map(userLocation => userLocation.user);
 
-    res.json(users);
+    const userDetails = await ProfileModel.find({user:{$in:userIds}})
+    res.json(userDetails)
   } catch (error) {
     res.status(500).json({ error: "An error occurred" });
     console.log(error);
