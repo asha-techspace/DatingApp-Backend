@@ -22,7 +22,7 @@ export const getProfileByQualification = async (req, res) => {
         const matchingProfiles = await ProfileModel.find({
             qualification: { $regex: qualificationRegex },
             user: { $ne: userid }
-        });
+        }).populate('user');
 
         // Fetch firstName and lastName from UserModel for each matching profile
         const profilesWithUserDetails = await Promise.all(
