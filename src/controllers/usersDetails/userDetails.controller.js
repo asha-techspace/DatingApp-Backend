@@ -48,9 +48,7 @@ export const users = async (req, res) => {
 
   export const userProfile = async (req, res) => {
     try {
-      console.log(req.params.id)
       const users = await ProfileModel.findOne({_id: req.params.id}).populate('user');
-      console.log(users)
       res.status(200).json(users);
     } catch (error) {
       console.error("Error fetching users:", error);
