@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-
+import { ObjectId } from "mongodb";
 const profileSchema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
@@ -50,6 +50,13 @@ const profileSchema = new Schema({
       publicId: String,
       url: String
     }
+  ],
+  stories: [
+    {
+          user: { type: ObjectId, ref: "User" },
+          storyPic: String,
+          StoryDate: Date
+    },
   ],
   reel: {
     publicId: String,

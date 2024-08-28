@@ -11,6 +11,7 @@ import locationRouter from "./routes/location.routers.js"
 
 
 import dotenv from 'dotenv'
+import {getStories} from "./controllers/stories/stories.controller.js";
 dotenv.config()
 
 const app = new express();
@@ -45,7 +46,9 @@ app.use(passport.session());
 app.use("/", authRoutes)
 app.use("/api/v1/users", userRoute);
 
-app.use("/location", locationRouter)
+// get user stories
+app.get("/getStories", getStories)
 
+app.use("/location", locationRouter)
 
 export default app
