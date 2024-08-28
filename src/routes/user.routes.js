@@ -10,7 +10,7 @@ import { createPartnerPreference, deletePartnerPreference, getPartnerPreferenceB
 import { getProfileByDesigination } from "../controllers/profileDesigination/ProfileDesigantion.controller.js";
 import {matchByLocation } from "../controllers/location/location.controller.js";
 import { getProfileByQualification } from "../controllers/profileQualification/profileQualification.controller.js";
-import { users } from "../controllers/usersDetails/userDetails.controller.js";
+import { userProfile, users } from "../controllers/usersDetails/userDetails.controller.js";
 const router = new Router();
 
 // Routes from emailotp branch
@@ -44,6 +44,7 @@ router.delete('/preferences/:id', deletePartnerPreference);
 router.get('/profile/designations',verifyUser,getProfileByDesigination)
 //get profile by Qualification
 router.get('/profile/qualification',verifyUser,getProfileByQualification)
+router.get('/profile/:id',userProfile)
 
 //get profile by location
 

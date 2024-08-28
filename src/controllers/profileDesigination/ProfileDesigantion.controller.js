@@ -7,6 +7,8 @@ export const getProfileByDesigination =async(req,res)=>{
     const userid = req.user;
     console.log(userid)
     try{
+       
+
         const employes = await EmploymentModel.findOne({user:userid});
         console.log(employes)
      
@@ -20,13 +22,36 @@ export const getProfileByDesigination =async(req,res)=>{
 
         // Find matching employments with the same designation (case-insensitive and trimmed)
         const matchingEmployments = await EmploymentModel.find({
-            designation: { $regex: new RegExp(`^${userDesignation}$`, 'i') }, // Case-insensitive match
+            designation: { $regex: new RegExp(userDesignation, 'i') }, // Case-insensitive match
             user: { $ne: userid } // Exclude the current user
         });
         const userIds = matchingEmployments.map(employment => employment.user);
         console.log(userIds);
+        const currentUserProfile = await ProfileModel.findOne({ user: userid });
+        
+        if (!currentUserProfile || !currentUserProfile.genderPreference) {
+            return res.status(404).json({
+                message: "User profile or gender preference not found"
+            });
+        }
+
+        const userGenderPreference = currentUserProfile.genderPreference.trim();
+        console.log("User Gender Preference:", userGenderPreference);
        
-        const profilesMatched = await ProfileModel.find({user:userIds})
+        let preferredGender;
+
+        if (userGenderPreference === 'MEN') {
+            preferredGender = 'WOMEN';
+        } else if (userGenderPreference === 'WOMEN') {
+            preferredGender = 'MEN';
+        } else if (userGenderPreference === 'OTHER') {
+            preferredGender = ['MEN', 'WOMEN']; // Show both men and women
+        }
+       
+        const profilesMatched = await ProfileModel.find({
+            user: { $in: userIds }, // Match users from similar designations
+             genderPreference:preferredGender// gender as usergenderpreference
+        })
         console.log(profilesMatched)
 
         const profilesWithUserDetails = await Promise.all(
