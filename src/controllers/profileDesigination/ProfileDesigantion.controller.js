@@ -38,11 +38,19 @@ export const getProfileByDesigination =async(req,res)=>{
         const userGenderPreference = currentUserProfile.genderPreference.trim();
         console.log("User Gender Preference:", userGenderPreference);
        
-       
+        let preferredGender;
+
+        if (userGenderPreference === 'MEN') {
+            preferredGender = 'WOMEN';
+        } else if (userGenderPreference === 'WOMEN') {
+            preferredGender = 'MEN';
+        } else if (userGenderPreference === 'OTHER') {
+            preferredGender = ['MEN', 'WOMEN']; // Show both men and women
+        }
        
         const profilesMatched = await ProfileModel.find({
             user: { $in: userIds }, // Match users from similar designations
-            genderPreference: userGenderPreference
+             genderPreference:preferredGender// gender as usergenderpreference
         })
         console.log(profilesMatched)
 
