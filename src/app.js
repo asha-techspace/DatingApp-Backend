@@ -11,7 +11,7 @@ import locationRouter from "./routes/location.routers.js"
 
 
 import dotenv from 'dotenv'
-import {getStories} from "./controllers/stories/stories.controller.js";
+import {getStories, oneStory} from "./controllers/stories/stories.controller.js";
 dotenv.config()
 
 const app = new express();
@@ -47,7 +47,8 @@ app.use("/", authRoutes)
 app.use("/api/v1/users", userRoute);
 
 // get user stories
-app.get("/getStories", getStories)
+app.get("/story/:id", oneStory)
+app.get("/story", getStories)
 
 app.use("/location", locationRouter)
 
