@@ -11,7 +11,6 @@ export const getProfileByDesigination =async(req,res)=>{
 
         const employes = await EmploymentModel.findOne({user:userid});
         console.log(employes)
-     
          if(!employes){
             return res.status(404).json({
                 message:"user employment recordes not found"

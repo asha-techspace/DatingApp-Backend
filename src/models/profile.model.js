@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import { ObjectId } from "mongodb";
 
 const profileSchema = new Schema(
   {
@@ -23,7 +24,7 @@ const profileSchema = new Schema(
         type: [Number],
         required: true,
       },
-      place:{
+      place: {
         type: String,
       }
     },
@@ -76,14 +77,22 @@ const profileSchema = new Schema(
         ref: "User",
       },
     ],
+    stories: [
+      {
+        user: { type: ObjectId, ref: "User" },
+        storyPic: String,
+        storyDate: Date, // Corrected field name to match standard conventions
+      },
+    ],
   },
   {
     timestamps: true,
   }
 );
 
+// Adding geospatial index for location field
 profileSchema.index({ location: "2dsphere" });
 
-const ProfileModel = new mongoose.model('Profile', profileSchema);
+const ProfileModel = mongoose.model('Profile', profileSchema);
 
 export default ProfileModel;
