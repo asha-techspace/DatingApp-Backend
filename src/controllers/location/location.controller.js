@@ -1,4 +1,4 @@
-import locationModel from '../../models/location.model.js';
+/* import locationModel from '../../models/location.model.js';
 import ProfileModel from '../../models/profile.model.js';
 
 export const getLocation = async (req, res) => {
@@ -51,7 +51,7 @@ export const findNearByUser = async (req, res) => {
             type: "Point",
             coordinates: [parseFloat(longitude), parseFloat(latitude)],
           },
-          $maxDistance: 5000,
+          $maxDistance: 10000,
         },
       },
       user: { $ne: currentUser },
@@ -64,5 +64,71 @@ export const findNearByUser = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "An error occurred" });
     console.log(error);
+  }
+};
+ */
+
+import ProfileModel from "../../models/profile.model.js";
+
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  if(isNaN(lat1) || isNaN(lon1) || isNaN(lat2) || isNaN(lon2)) {
+    throw new Error("Invalid coordinates for distance calculation")
+  }
+  const R = 6371; // Radius of the Earth in km
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) *
+      Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c; // Distance in km
+};
+
+
+export const matchByLocation = async (req, res) => {
+  const userId = req.user._id;
+  
+
+  try {
+    // Retrieve current user location
+    const user = await ProfileModel.findOne({ user: userId });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+ 
+    const [userLat, userLon] = user.location.coordinates || [null, null]
+    if(userLat === null || userLon === null) {
+      res.status(400).json({message: "User location not available"})
+    }
+    
+
+    // Retrieve all uesrs(excluding current user)
+
+    const users = await ProfileModel.find({user: {$ne: userId}})
+    
+    
+    const userWithDistance = users.map((otherUser) => {
+      const [otherUserLat, otherUserLon] = otherUser.location.coordinates || [null,null]
+      if(otherUserLat === null || otherUserLon === null) return null
+      
+      const distance = calculateDistance(userLat,userLon,otherUserLat,otherUserLon)
+      return {...otherUser._doc, distance};
+      
+    }).filter(user => user !== null)
+
+    // sort users with distance
+    userWithDistance.sort((a,b) => a.distance - b.distance);
+
+    //limit number of users to show
+    const nearestUsers = userWithDistance.slice(0, 10);
+
+    res.json(nearestUsers)
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({error:"Error occured while finding nearby users"})
   }
 };

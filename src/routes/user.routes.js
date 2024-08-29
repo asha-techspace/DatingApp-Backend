@@ -8,9 +8,10 @@ import { setInterest } from "../controllers/profile/interest.controller.js";
 import { jobDetails, moreJobDetails } from "../controllers/profile/personalDetails.js";
 import { createPartnerPreference, deletePartnerPreference, getPartnerPreferenceById, updatePartnerPreference } from "../controllers/profile/partnerPreferance.controller.js";
 import { getProfileByDesigination } from "../controllers/profileDesigination/ProfileDesigantion.controller.js";
-import { findNearByUser, getLocation } from "../controllers/location/location.controller.js";
+import {matchByLocation } from "../controllers/location/location.controller.js";
 import { getProfileByQualification } from "../controllers/profileQualification/profileQualification.controller.js";
 import { userProfile, users } from "../controllers/usersDetails/userDetails.controller.js";
+import { compareUserWithAllOthers } from "../controllers/userMatchPercent/userMatchPercent.js";
 const router = new Router();
 
 // Routes from emailotp branch
@@ -48,12 +49,12 @@ router.get('/profile/:id',userProfile)
 
 //get profile by location
 
-router.post('/getlocation',verifyUser,getLocation)
-router.get('/findNearByUsers',verifyUser, findNearByUser)
+
+router.get('/matchbylocation',verifyUser, matchByLocation)
 
 //get data users
 router.get("/users", users);
 
-
+router.get('/compare', verifyUser, compareUserWithAllOthers)
 
 export default router;
