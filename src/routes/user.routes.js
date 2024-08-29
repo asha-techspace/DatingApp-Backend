@@ -11,6 +11,7 @@ import { getProfileByDesigination } from "../controllers/profileDesigination/Pro
 import {matchByLocation } from "../controllers/location/location.controller.js";
 import { getProfileByQualification } from "../controllers/profileQualification/profileQualification.controller.js";
 import { userProfile, users } from "../controllers/usersDetails/userDetails.controller.js";
+import { compareUserWithAllOthers } from "../controllers/userMatchPercent/userMatchPercent.js";
 const router = new Router();
 
 // Routes from emailotp branch
@@ -54,6 +55,6 @@ router.get('/matchbylocation',verifyUser, matchByLocation)
 //get data users
 router.get("/users", users);
 
-
+router.get('/compare', verifyUser, compareUserWithAllOthers)
 
 export default router;

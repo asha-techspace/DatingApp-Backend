@@ -51,7 +51,7 @@ export const findNearByUser = async (req, res) => {
             type: "Point",
             coordinates: [parseFloat(longitude), parseFloat(latitude)],
           },
-          $maxDistance: 5000,
+          $maxDistance: 10000,
         },
       },
       user: { $ne: currentUser },
