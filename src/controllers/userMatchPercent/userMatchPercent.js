@@ -21,7 +21,6 @@ export const calculateMatchPercentage = async (userProfile, otherUserProfile) =>
             weight: 20,
             matchFunc: (a, b) => (a === b ? 1 : 0),
         },
-        
         {
             field: 'qualification',
             weight: 15,
@@ -36,17 +35,13 @@ export const calculateMatchPercentage = async (userProfile, otherUserProfile) =>
             field: 'interests',
             weight: 10,
             matchFunc: (a, b) => {
-                // Handle case where interests are stored as a single string within an array
                 const userInterests = Array.isArray(a) ? (typeof a[0] === 'string' ? a[0].split(',').map(s => s.trim()) : a[0]) : a;
                 const otherUserInterests = Array.isArray(b) ? (typeof b[0] === 'string' ? b[0].split(',').map(s => s.trim()) : b) : b;
 
-                // Find shared interests
                 const sharedInterests = userInterests.filter((interest) => otherUserInterests.includes(interest));
 
-                // More debug output
                 console.log('Shared Interests:', sharedInterests);
 
-                // Calculate the match score
                 return sharedInterests.length / Math.max(userInterests.length, otherUserInterests.length);
             },
         },
@@ -56,8 +51,6 @@ export const calculateMatchPercentage = async (userProfile, otherUserProfile) =>
         const { field, weight, matchFunc } = criterion;
         const userField = userProfile[field];
         const otherUserField = otherUserProfile[field];
-        // console.log(otherUserField);
-
 
         if (userField && otherUserField) {
             matchScore += matchFunc(userField, otherUserField) * weight;
@@ -75,15 +68,12 @@ export const compareUserWithAllOthers = async (req, res) => {
     try {
         const { _id: userId } = req.user; // Get the user ID from the authenticated user
 
-
-        // Retrieve the profile of the specific user
         const userProfile = await ProfileModel.findOne({ user: userId }).lean();
 
         if (!userProfile) {
             return res.status(404).json({ message: 'User profile not found.' });
         }
 
-        // Retrieve all profiles except the one with userId
         const allProfiles = await ProfileModel.find({ user: { $ne: userId } }).lean();
 
         if (allProfiles.length === 0) {
@@ -93,20 +83,11 @@ export const compareUserWithAllOthers = async (req, res) => {
         const matchResults = [];
 
         for (const otherProfile of allProfiles) {
-            // Calculate match percentage
             const matchPercentage = await calculateMatchPercentage(userProfile, otherProfile);
 
-            // Retrieve the other user's first and last name from the UserModel
-            const otherUser = await UserModel.findById(otherProfile.user, 'firstName lastName').lean();
-
-            // Combine firstName and lastName into fullName
-            const otherUserName = otherUser ? `${otherUser.firstName} ${otherUser.lastName}` : 'Unknown';
-
-            // Push the result with profile, match percentage, and the other user's full name
             matchResults.push({
-                profile: otherProfile, // Include the other user's profile details
                 matchPercentage,
-                otherUserName,  // Include the full name from UserModel
+                user: otherProfile.user,
             });
         }
 
