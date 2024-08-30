@@ -124,6 +124,7 @@ export const matchByLocation = async (req, res) => {
 
     //limit number of users to show
     const nearestUsers = userWithDistance.slice(0, 10);
+    // console.log("nearestUsers", nearestUsers);
 
     res.json(nearestUsers)
 
