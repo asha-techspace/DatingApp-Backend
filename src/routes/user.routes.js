@@ -12,6 +12,9 @@ import {matchByLocation } from "../controllers/location/location.controller.js";
 import { getProfileByQualification } from "../controllers/profileQualification/profileQualification.controller.js";
 import { userProfile, users } from "../controllers/usersDetails/userDetails.controller.js";
 import { compareUserWithAllOthers } from "../controllers/userMatchPercent/userMatchPercent.js";
+import { sendFriendRequest, acceptFriendRequest } from '../controllers/friendRequestController.js';
+
+
 const router = new Router();
 
 // Routes from emailotp branch
@@ -56,5 +59,11 @@ router.get('/matchbylocation',verifyUser, matchByLocation)
 router.get("/users", users);
 
 router.get('/compare', verifyUser, compareUserWithAllOthers)
+
+// Route to send a friend request
+router.post('/send', sendFriendRequest);
+
+// Route to accept a friend request
+router.put('/accept/:userId', acceptFriendRequest);
 
 export default router;
