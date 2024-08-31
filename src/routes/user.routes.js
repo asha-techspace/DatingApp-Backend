@@ -12,6 +12,7 @@ import {matchByLocation } from "../controllers/location/location.controller.js";
 import { getProfileByQualification } from "../controllers/profileQualification/profileQualification.controller.js";
 import { userProfile, users } from "../controllers/usersDetails/userDetails.controller.js";
 import { compareUserWithAllOthers } from "../controllers/userMatchPercent/userMatchPercent.js";
+import { editReel } from "../controllers/profile/reel.controller.js";
 const router = new Router();
 
 // Routes from emailotp branch
@@ -27,6 +28,7 @@ router.route('/profile-details').post(verifyUser, upload.fields([
 ]), createProfile);
 
 router.route('/relationship-goals').patch(verifyUser, relationshipGoalsController);
+router.route('/reel').patch(verifyUser,upload.single('reel'), editReel);
 
 // New route for setting interest
 router.route('/set-interest').patch(verifyUser, setInterest);
