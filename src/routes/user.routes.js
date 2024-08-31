@@ -12,8 +12,8 @@ import {matchByLocation } from "../controllers/location/location.controller.js";
 import { getProfileByQualification } from "../controllers/profileQualification/profileQualification.controller.js";
 import { userProfile, users } from "../controllers/usersDetails/userDetails.controller.js";
 import { compareUserWithAllOthers } from "../controllers/userMatchPercent/userMatchPercent.js";
-import { sendFriendRequest, acceptFriendRequest } from '../controllers/friendRequestController.js';
 import { editReel } from "../controllers/profile/reel.controller.js";
+import { acceptFriendRequest, sendFriendRequest } from "../controllers/profile/friendRequestController.js";
 
 const router = new Router();
 
@@ -62,9 +62,9 @@ router.get("/users", users);
 router.get('/compare', verifyUser, compareUserWithAllOthers)
 
 // Route to send a friend request
-router.post('/send', sendFriendRequest);
+router.patch('/send/:to', verifyUser, sendFriendRequest);
 
 // Route to accept a friend request
-router.put('/accept/:userId', acceptFriendRequest);
+router.patch('/accept/:from', verifyUser, acceptFriendRequest);
 
 export default router;

@@ -134,9 +134,7 @@ export const loginUser = async (req, res) => {
                 message: 'All fields are required'
             });
         }
-
         const user = await UserModel.findOne({ email });
-
         if (!user || !(await bcrypt.compare(password, user.password))) {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
