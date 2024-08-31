@@ -13,7 +13,7 @@ import { getProfileByQualification } from "../controllers/profileQualification/p
 import { userProfile, users } from "../controllers/usersDetails/userDetails.controller.js";
 import { compareUserWithAllOthers } from "../controllers/userMatchPercent/userMatchPercent.js";
 import { sendFriendRequest, acceptFriendRequest } from '../controllers/friendRequestController.js';
-
+import { editReel } from "../controllers/profile/reel.controller.js";
 
 const router = new Router();
 
@@ -30,6 +30,7 @@ router.route('/profile-details').post(verifyUser, upload.fields([
 ]), createProfile);
 
 router.route('/relationship-goals').patch(verifyUser, relationshipGoalsController);
+router.route('/reel').patch(verifyUser,upload.single('reel'), editReel);
 
 // New route for setting interest
 router.route('/set-interest').patch(verifyUser, setInterest);

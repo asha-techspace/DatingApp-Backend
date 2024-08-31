@@ -28,6 +28,9 @@ const profileSchema = new Schema(
         type: String,
       }
     },
+    distance: {
+      type: Number,
+    },
     age: {
       type: Number,
     },
@@ -81,7 +84,7 @@ const profileSchema = new Schema(
       {
         user: { type: ObjectId, ref: "User" },
         storyPic: String,
-        storyDate: Date, // Corrected field name to match standard conventions
+        storyDate: Date, 
       },
     ],
   },
