@@ -2,9 +2,9 @@ import ProfileModel from "../../models/profile.model.js";
 import UserModel from "../../models/user.model.js";
 
 export const getProfileByQualification = async (req, res) => {
-    const userid = req.user._id
-    console.log("userid:",userid);
-    
+    const userid = req.user._id;
+    console.log("userid:", userid);
+
     try {
         // Fetch the profile of the current user
         const currentUserProfile = await ProfileModel.findOne({ user: userid });
@@ -14,7 +14,7 @@ export const getProfileByQualification = async (req, res) => {
         }
 
         const userQualification = currentUserProfile.qualification;
-
+        
         // Create a regular expression for the exact word match
         const qualificationRegex = new RegExp(`\\b${userQualification}\\b`, 'i');
 
@@ -24,9 +24,21 @@ export const getProfileByQualification = async (req, res) => {
             user: { $ne: userid }
         }).populate('user');
 
+        // Filter profiles based on gender preference
+        const filteredProfiles = matchingProfiles.filter((profile) => {
+            const { gender } = profile;
+            const { genderPreference } = currentUserProfile;
+
+            return (
+                (genderPreference === "MEN" && gender === "Male") ||
+                (genderPreference === "WOMEN" && gender === "Female") ||
+                genderPreference === "BOTH"
+            );
+        });
+
         // Fetch firstName and lastName from UserModel for each matching profile
         const profilesWithUserDetails = await Promise.all(
-            matchingProfiles.map(async (profile) => {
+            filteredProfiles.map(async (profile) => {
                 const user = await UserModel.findById(profile.user).select('firstName lastName');
                 const name = `${user?.firstName || ''} ${user?.lastName || ''}`.trim();
                 return {

@@ -3,20 +3,20 @@ import ProfileModel from "../../models/profile.model.js";
 import UserModel from "../../models/user.model.js";
 
 
-export const getProfileByDesigination =async(req,res)=>{
+export const getProfileByDesigination = async (req, res) => {
     const userid = req.user;
     console.log(userid)
-    try{
-       
+    try {
 
-        const employes = await EmploymentModel.findOne({user:userid});
+
+        const employes = await EmploymentModel.findOne({ user: userid });
         console.log(employes)
-         if(!employes){
+        if (!employes) {
             return res.status(404).json({
-                message:"user employment recordes not found"
+                message: "user employment recordes not found"
             })
-         }
-         const userDesignation = employes.designation.trim(); // Remove extra spaces
+        }
+        const userDesignation = employes.designation.trim(); // Remove extra spaces
         console.log(userDesignation);
 
         // Find matching employments with the same designation (case-insensitive and trimmed)
@@ -27,7 +27,7 @@ export const getProfileByDesigination =async(req,res)=>{
         const userIds = matchingEmployments.map(employment => employment.user);
         console.log(userIds);
         const currentUserProfile = await ProfileModel.findOne({ user: userid });
-        
+
         if (!currentUserProfile || !currentUserProfile.genderPreference) {
             return res.status(404).json({
                 message: "User profile or gender preference not found"
@@ -36,22 +36,23 @@ export const getProfileByDesigination =async(req,res)=>{
 
         const userGenderPreference = currentUserProfile.genderPreference.trim();
         console.log("User Gender Preference:", userGenderPreference);
-       
+
         let preferredGender;
 
         if (userGenderPreference === 'MEN') {
-            preferredGender = 'WOMEN';
+            preferredGender = ['Male'];
         } else if (userGenderPreference === 'WOMEN') {
-            preferredGender = 'MEN';
-        } else if (userGenderPreference === 'OTHER') {
-            preferredGender = ['MEN', 'WOMEN']; // Show both men and women
+            preferredGender = ['Female'];
+        } else if (userGenderPreference === 'BOTH') {
+            preferredGender = ['Male', 'Female']; // Show both men and women
         }
-       
+
         const profilesMatched = await ProfileModel.find({
             user: { $in: userIds }, // Match users from similar designations
-             genderPreference:preferredGender// gender as usergenderpreference
-        })
-        console.log(profilesMatched)
+            gender: { $in: preferredGender } // gender as usergenderpreference
+        });
+
+        console.log(profilesMatched);
 
         const profilesWithUserDetails = await Promise.all(
             profilesMatched.map(async (profile) => {
@@ -64,12 +65,12 @@ export const getProfileByDesigination =async(req,res)=>{
             })
         );
 
-            
 
-  return res.status(200).json(profilesWithUserDetails)
-       
+
+        return res.status(200).json(profilesWithUserDetails)
+
     }
-    catch(error){
+    catch (error) {
         res.status(500).json({ error: 'Failed to retrieve profiles' });
     }
 }
