@@ -58,7 +58,6 @@ router.get('/matchbylocation',verifyUser, matchByLocation)
 
 //get data users
 router.get("/users", users);
-router.get('/allprofile',verifyUser,getAllProfilesExceptLoggedInUser)
 
 router.get('/compare', verifyUser, compareUserWithAllOthers)
 
