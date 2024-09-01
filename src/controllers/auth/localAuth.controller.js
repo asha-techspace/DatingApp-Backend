@@ -8,9 +8,10 @@ import otpGenerator from 'otp-generator';
 
 
 const cookieOptions = {
-    httpOnly: true,
-    secure: true,
-    sameSite: "none"
+    httpOnly: false, 
+    secure: false,      // Set to true in production with HTTPS
+    sameSite: "lax",  
+    maxAge: 24 * 60 * 60 * 1000
 };
 
 
@@ -101,20 +102,18 @@ export const registerUser = async (req, res) => {
 
         return res.status(201)
             .cookie("token", token, cookieOptions)
+            .cookie("user", JSON.stringify({
+                _id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                isVerified: user.isVerified,
+                isActive: user.isActive,
+                isAuthenticated: true,
+            }), cookieOptions)
             .json({
                 success: true,
                 message: 'Registration successful!',
-                data: {
-                    _id: user._id,
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                    email: user.email,
-                    isVerified: user.isVerified,
-                    isActive: user.isActive,
-                },
-                isAuthenticated: true,
-                token,
-                tokenExpiry: Date.now() + 86400000, // 1 day
             });
     } catch (error) {
         console.error('Registration error:', error);
@@ -146,13 +145,10 @@ export const loginUser = async (req, res) => {
         await userWithoutPassword.save();
         res.status(200)
             .cookie("token", token, cookieOptions)
+            .cookie("user", {...userWithoutPassword, "isAuthenticated" : true}, cookieOptions)
             .json({
                 success: true,
                 message: 'Login Successfully!',
-                data: userWithoutPassword,
-                isAuthenticated: true,
-                token,
-                tokenExpiry: Date.now() + 86400000, // 1 day
             });
     } catch (error) {
         console.error('Login error:', error);
@@ -257,14 +253,15 @@ export const logout = async (req, res) => {
         res.cookie("token", "", {
             httpOnly: true,
             expires: new Date(Date.now()), // Expire the cookie immediately
-        })
-        res.cookie("connect.sid", "", {
+        }).cookie("connect.sid", "", {
             httpOnly: true,
             expires: new Date(0), 
-        });
+        }).cookie("user", "", {
+            httpOnly: true,
+            expires: new Date(0), 
+        })
         return res.status(200).json({
             success: true,
-            isAuthenticated: false,
             message: "User successfully logged out"
         });
     } catch (error) {
