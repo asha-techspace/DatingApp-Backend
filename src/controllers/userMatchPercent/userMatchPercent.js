@@ -3,9 +3,7 @@ import ProfileModel from "../../models/profile.model.js";
 import UserModel from "../../models/user.model.js"; // Assuming the User model is imported
 
 // Function to calculate match percentage between two users
-export const calculateMatchPercentage = async (userProfile, otherUserProfile) => {
-    console.log(`Comparing ${userProfile.user} with ${otherUserProfile.user}`);
-
+export const calculateMatchPercentage = (userProfile, otherUserProfile) => {
     let matchScore = 0;
     const totalWeight = 100;
     let weightSum = 0;
@@ -13,17 +11,17 @@ export const calculateMatchPercentage = async (userProfile, otherUserProfile) =>
     const criteria = [
         {
             field: 'drinking',
-            weight: 20,
+            weight: 10,
             matchFunc: (a, b) => (a === b ? 1 : 0),
         },
         {
             field: 'smoking',
-            weight: 20,
+            weight: 10,
             matchFunc: (a, b) => (a === b ? 1 : 0),
         },
         {
             field: 'qualification',
-            weight: 15,
+            weight: 10,
             matchFunc: (a, b) => (a === b ? 1 : 0),
         },
         {
@@ -35,15 +33,18 @@ export const calculateMatchPercentage = async (userProfile, otherUserProfile) =>
             field: 'interests',
             weight: 10,
             matchFunc: (a, b) => {
-                const userInterests = Array.isArray(a) ? (typeof a[0] === 'string' ? a[0].split(',').map(s => s.trim()) : a[0]) : a;
-                const otherUserInterests = Array.isArray(b) ? (typeof b[0] === 'string' ? b[0].split(',').map(s => s.trim()) : b) : b;
+                const userInterests = Array.isArray(a) ? a.flatMap(interest => interest.split(',').map(s => s.trim())) : [];
+                const otherUserInterests = Array.isArray(b) ? b.flatMap(interest => interest.split(',').map(s => s.trim())) : [];
 
                 const sharedInterests = userInterests.filter((interest) => otherUserInterests.includes(interest));
 
-                console.log('Shared Interests:', sharedInterests);
-
                 return sharedInterests.length / Math.max(userInterests.length, otherUserInterests.length);
             },
+        },
+        {
+            field: 'location',
+            weight: 10,
+            matchFunc: (a, b) => (a.place === b.place ? 1 : 0),
         },
     ];
 
@@ -66,7 +67,7 @@ export const calculateMatchPercentage = async (userProfile, otherUserProfile) =>
 // Function to compare a user with all other users and return the results
 export const compareUserWithAllOthers = async (req, res) => {
     try {
-        const { _id: userId } = req.user; // Get the user ID from the authenticated user
+        const { _id: userId } = req.user;
 
         const userProfile = await ProfileModel.findOne({ user: userId }).lean();
 
@@ -74,22 +75,33 @@ export const compareUserWithAllOthers = async (req, res) => {
             return res.status(404).json({ message: 'User profile not found.' });
         }
 
-        const allProfiles = await ProfileModel.find({ user: { $ne: userId } }).lean();
+        const allProfiles = await ProfileModel.find({ 
+            user: { $ne: userId },
+            gender: userProfile.genderPreference === 'MEN' ? 'Male' :
+                    userProfile.genderPreference === 'WOMEN' ? 'Female' :
+                    { $in: ['Male', 'Female'] }
+        }).lean();
 
         if (allProfiles.length === 0) {
             return res.status(404).json({ message: 'No other users found for comparison.' });
         }
 
-        const matchResults = [];
+        // Fetch user names in a single query
+        const userIds = allProfiles.map(profile => profile.user);
+        const userNames = await UserModel.find({ _id: { $in: userIds } }, 'firstName lastName').lean();
+        const userNamesMap = Object.fromEntries(userNames.map(user => [user._id.toString(), `${user.firstName} ${user.lastName}`]));
 
-        for (const otherProfile of allProfiles) {
-            const matchPercentage = await calculateMatchPercentage(userProfile, otherProfile);
+        // Use Promise.all to compare profiles in parallel
+        const matchResults = await Promise.all(allProfiles.map(async (otherProfile) => {
+            const matchPercentage = calculateMatchPercentage(userProfile, otherProfile);
+            const otherUserName = userNamesMap[otherProfile.user.toString()] || 'Unknown';
 
-            matchResults.push({
+            return {
                 matchPercentage,
-                user: otherProfile.user,
-            });
-        }
+                user: otherProfile,
+                otherUserName
+            };
+        }));
 
         return res.status(200).json({ results: matchResults });
     } catch (error) {

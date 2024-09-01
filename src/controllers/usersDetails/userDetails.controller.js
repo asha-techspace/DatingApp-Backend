@@ -55,3 +55,14 @@ export const users = async (req, res) => {
       res.status(500).json({ error: "Failed to fetch users" });
     }
   };
+
+  export const getAllProfilesExceptLoggedInUser = async (req, res) => {
+    try {
+      const profiles = await ProfileModel.find({ _id: { $ne: req.user.id } }).populate('user');
+      res.status(200).json(profiles);
+    } catch (error) {
+      console.error("Error fetching profiles:", error);
+      res.status(500).json({ error: "Failed to fetch profiles" });
+    }
+  };
+  
