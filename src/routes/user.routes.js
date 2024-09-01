@@ -12,7 +12,9 @@ import {matchByLocation } from "../controllers/location/location.controller.js";
 import { getProfileByQualification } from "../controllers/profileQualification/profileQualification.controller.js";
 import { userProfile, users } from "../controllers/usersDetails/userDetails.controller.js";
 import { compareUserWithAllOthers } from "../controllers/userMatchPercent/userMatchPercent.js";
-import { getAllProfilesExceptLoggedInUser } from "../controllers/usersDetails/userDetails.controller.js";
+import { editReel } from "../controllers/profile/reel.controller.js";
+import { acceptFriendRequest, sendFriendRequest } from "../controllers/profile/friendRequestController.js";
+
 const router = new Router();
 
 // Routes from emailotp branch
@@ -28,6 +30,7 @@ router.route('/profile-details').post(verifyUser, upload.fields([
 ]), createProfile);
 
 router.route('/relationship-goals').patch(verifyUser, relationshipGoalsController);
+router.route('/reel').patch(verifyUser,upload.single('reel'), editReel);
 
 // New route for setting interest
 router.route('/set-interest').patch(verifyUser, setInterest);
@@ -58,5 +61,11 @@ router.get("/users", users);
 router.get('/allprofile',verifyUser,getAllProfilesExceptLoggedInUser)
 
 router.get('/compare', verifyUser, compareUserWithAllOthers)
+
+// Route to send a friend request
+router.patch('/send/:to', verifyUser, sendFriendRequest);
+
+// Route to accept a friend request
+router.patch('/accept/:from', verifyUser, acceptFriendRequest);
 
 export default router;

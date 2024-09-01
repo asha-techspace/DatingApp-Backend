@@ -19,9 +19,9 @@ const userSchema = new Schema(
             unique: true
         },
         isActive: {
-           type: Boolean,
-           default: false
-         },
+            type: Boolean,
+            default: false
+        },
         contact: {
             type: Number,
             unique: true,
@@ -44,14 +44,19 @@ const userSchema = new Schema(
             type: Boolean,
             default: false
         },
+        friendRequests: [{
+            from: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+            status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' }
+        }],
+        friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+        requestedLists: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
         forgotPasswordToken: String,
         forgotPasswordExpiry: Date,
-        verificationToken: String,
-        verificationTokenExpiry: Date,
     },
     {
         timestamps: true,
-    }
+    },
+
 );
 
 const UserModel = new mongoose.model('User', userSchema);
