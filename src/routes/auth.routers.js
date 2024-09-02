@@ -2,7 +2,7 @@ import { Router } from "express";
 import passport from '../middlewares/passport.middleWare.js';
 import { handleGoogleCallback, handleLogout, loginSuccess } from "../controllers/auth/auth.controller.js";
 import { googleAuthCallback, logoutUser } from "../middlewares/googleAuth.middleware.js";
-import { registerUser, loginUser, forgotPassword, resetPassword, logout } from '../controllers/auth/localAuth.controller.js';
+import { registerUser, loginUser, forgotPassword, resetPassword, logout, changePassword } from '../controllers/auth/localAuth.controller.js';
 import { verifyUser } from "../middlewares/verifyjwt.middleware.js";
 
 const router = Router();
@@ -24,5 +24,6 @@ router.route('/login').post(loginUser);
 router.route('/logout').post(verifyUser, logout);
 router.route('/forgot-password').post(forgotPassword)
 router.route('/reset-password').patch(resetPassword)
+router.route('/change-password').patch(verifyUser, changePassword)
 
 export default router;

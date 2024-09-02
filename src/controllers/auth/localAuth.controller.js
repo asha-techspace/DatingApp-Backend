@@ -271,3 +271,43 @@ export const logout = async (req, res) => {
         });
     }
 }
+
+export const changePassword = async (req, res) => {
+    try {
+        const { newPassword, password } = await req.body;
+        if(!newPassword || !password) {
+            return res.status(400).json({
+                success: false,
+                message: "All fields are required"
+            });
+        }
+        const user = await UserModel.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            })
+        }
+    
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ 
+                success: false,
+                message: "Incorrect password"
+             });
+        }
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        await user.save();
+        return res.status(200).json({
+            success: true,
+            message: "Password changed successfully"
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
