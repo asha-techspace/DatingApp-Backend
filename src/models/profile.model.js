@@ -80,13 +80,6 @@ const profileSchema = new Schema(
         ref: "User",
       },
     ],
-    stories: [
-      {
-        user: { type: ObjectId, ref: "User" },
-        storyPic: String,
-        storyDate: Date, 
-      },
-    ],
   },
   {
     timestamps: true,
