@@ -4,10 +4,11 @@ import UserModel from '../../models/user.model.js';
 // Send a Friend Request
 export const sendFriendRequest = async (req, res) => {
   try {
-    const { to } = req.params; 
+    const { to } = req.params;
     const from = req.user._id
+    console.log(to);
 
-    if(!mongoose.Types.ObjectId.isValid(to)) {
+    if (!mongoose.Types.ObjectId.isValid(to)) {
       return res.status(400).json({
         success: false,
         message: 'Invalid user ID'
@@ -35,24 +36,61 @@ export const sendFriendRequest = async (req, res) => {
     await receiver.save();
     await sender.save();
 
-    res.status(200).json({ 
+    res.status(200).json({
       success: true,
       message: 'Friend request sent successfully'
-     });
+    });
   } catch (error) {
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
       message: error.message,
-     });
+    });
   }
 };
+
+// Remove a Friend Request
+export const removeFriendRequest = async (req, res) => {
+  try {
+    const { to } = req.params;
+    const from = req.user._id;
+
+    console.log("from:",from);
+    console.log("to:",to);
+    
+    if (!mongoose.Types.ObjectId.isValid(to)) {
+      return res.status(400).json({ success: false, message: 'Invalid user ID' });
+    }
+
+    const [sender, receiver] = await Promise.all([
+      UserModel.findById(from),
+      UserModel.findById(to)
+    ]);
+
+    if (!sender || !receiver) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Remove the friend request from the receiver's list and sender's requestedLists
+    receiver.friendRequests = receiver.friendRequests.filter(req => req.from.toString() !== from.toString());
+    sender.requestedLists = sender.requestedLists.filter(id => id.toString() !== to.toString());
+
+    await Promise.all([receiver.save(), sender.save()]);
+
+    res.status(200).json({ success: true, message: 'Friend request removed successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+
+
 
 // Accept a Friend Request
 export const acceptFriendRequest = async (req, res) => {
   try {
     const userId = req.user._id; // The ID of the user accepting the request
     const { from } = req.params;     // The ID of the user who sent the request
-    if(!mongoose.Types.ObjectId.isValid(from)) {
+    if (!mongoose.Types.ObjectId.isValid(from)) {
       return res.status(400).json({
         success: false,
         message: 'Invalid user ID'
@@ -65,9 +103,9 @@ export const acceptFriendRequest = async (req, res) => {
     if (!friendRequest) {
       return res.status(404).json({ message: 'Friend request not found' });
     }
-    
+
     const alreadyFriend = user.friends.find(user => user._id.toString() === from.toString());
-    if(alreadyFriend) {
+    if (alreadyFriend) {
       return res.status(400).json({ message: 'User is already a friend' });
     }
     // Update the request status and add the friend
@@ -77,6 +115,11 @@ export const acceptFriendRequest = async (req, res) => {
     // Update the friend who sent the request
     const friend = await UserModel.findById(from);
     friend.friends.push(userId);
+
+    // Remove the userId from friend's requestedLists array
+    friend.requestedLists = friend.requestedLists.filter(
+      (id) => id.toString() !== userId.toString()
+    );
 
     // Save both users
     await user.save();

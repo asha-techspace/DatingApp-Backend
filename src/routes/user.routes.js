@@ -10,11 +10,12 @@ import { createPartnerPreference, deletePartnerPreference, getPartnerPreferenceB
 import { getProfileByDesigination } from "../controllers/profileDesigination/ProfileDesigantion.controller.js";
 import {matchByLocation } from "../controllers/location/location.controller.js";
 import { getProfileByQualification } from "../controllers/profileQualification/profileQualification.controller.js";
-import { userProfile, users } from "../controllers/usersDetails/userDetails.controller.js";
+import { userProfile, users , getUserdetails } from "../controllers/usersDetails/userDetails.controller.js";
 import { compareUserWithAllOthers } from "../controllers/userMatchPercent/userMatchPercent.js";
 import { editReel } from "../controllers/profile/reel.controller.js";
-import { acceptFriendRequest, sendFriendRequest } from "../controllers/profile/friendRequestController.js";
 import { shortlistProfile } from '../controllers/profile/userController.js';
+import { acceptFriendRequest,removeFriendRequest, sendFriendRequest } from "../controllers/profile/friendRequestController.js";
+
 
 const router = new Router();
 
@@ -59,16 +60,20 @@ router.get('/matchbylocation',verifyUser, matchByLocation)
 
 //get data users
 router.get("/users", users);
+router.get("/user",verifyUser, getUserdetails);
 
 router.get('/compare', verifyUser, compareUserWithAllOthers)
 
 // Route to send a friend request
 router.patch('/send/:to', verifyUser, sendFriendRequest);
+router.delete('/friend-request/:to',verifyUser, removeFriendRequest);
 
 // Route to accept a friend request
 router.patch('/accept/:from', verifyUser, acceptFriendRequest);
 
+
 // Route to shortlist a profile
 router.post('/shortlist/:profileId', verifyUser, shortlistProfile);
+
 
 export default router;
