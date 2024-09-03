@@ -13,7 +13,7 @@ import { getProfileByQualification } from "../controllers/profileQualification/p
 import { userProfile, users , getUserdetails } from "../controllers/usersDetails/userDetails.controller.js";
 import { compareUserWithAllOthers } from "../controllers/userMatchPercent/userMatchPercent.js";
 import { editReel } from "../controllers/profile/reel.controller.js";
-import { shortlistProfile } from '../controllers/profile/userController.js';
+import { shortlistProfile } from '../controllers/profile/shortListController.js';
 import { acceptFriendRequest,removeFriendRequest, sendFriendRequest } from "../controllers/profile/friendRequestController.js";
 
 
