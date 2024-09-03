@@ -53,6 +53,7 @@ const userSchema = new Schema(
         shortlistedProfiles:[{ type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
         shortListedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
         rejected:[{ type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
+        viewedBy:[{ type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
         forgotPasswordToken: String,
         forgotPasswordExpiry: Date,
     },
