@@ -13,7 +13,9 @@ import { getProfileByQualification } from "../controllers/profileQualification/p
 import { userProfile, users , getUserdetails } from "../controllers/usersDetails/userDetails.controller.js";
 import { compareUserWithAllOthers } from "../controllers/userMatchPercent/userMatchPercent.js";
 import { editReel } from "../controllers/profile/reel.controller.js";
+import { shortlistProfile } from '../controllers/profile/userController.js';
 import { acceptFriendRequest,removeFriendRequest, sendFriendRequest } from "../controllers/profile/friendRequestController.js";
+
 
 const router = new Router();
 
@@ -68,6 +70,10 @@ router.delete('/friend-request/:to',verifyUser, removeFriendRequest);
 
 // Route to accept a friend request
 router.patch('/accept/:from', verifyUser, acceptFriendRequest);
+
+
+// Route to shortlist a profile
+router.post('/shortlist/:profileId', verifyUser, shortlistProfile);
 
 
 export default router;
