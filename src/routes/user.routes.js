@@ -13,9 +13,11 @@ import { getProfileByQualification } from "../controllers/profileQualification/p
 import { userProfile, users , getUserdetails } from "../controllers/usersDetails/userDetails.controller.js";
 import { compareUserWithAllOthers } from "../controllers/userMatchPercent/userMatchPercent.js";
 import { editReel } from "../controllers/profile/reel.controller.js";
+import{RejectFriendRequest} from "../controllers/profile/rejectFriendRequest.controller.js"
 import { shortlistProfile } from '../controllers/profile/shortListController.js';
 import { acceptFriendRequest,removeFriendRequest, sendFriendRequest } from "../controllers/profile/friendRequestController.js";
 import { viewedBy } from "../controllers/profile/viewedByController.js";
+
 
 
 const router = new Router();
@@ -73,9 +75,14 @@ router.delete('/friend-request/:to',verifyUser, removeFriendRequest);
 router.patch('/accept/:from', verifyUser, acceptFriendRequest);
 
 
+//Route to Reject reguest
+router.patch('/reject/:from',verifyUser,RejectFriendRequest)
+
+
 // Route to shortlist a profile
 router.post('/shortlist/:profileId', verifyUser, shortlistProfile);
 router.patch('/viewed-by/:id', verifyUser, viewedBy);
+
 
 
 export default router;
