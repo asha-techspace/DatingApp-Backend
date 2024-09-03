@@ -68,6 +68,6 @@ router.patch('/send/:to', verifyUser, sendFriendRequest);
 router.patch('/accept/:from', verifyUser, acceptFriendRequest);
 
 //Router to Reject reguest
-router.patch('/reject/:from',RejectFriendRequest)
+router.patch('/reject/:from',verifyUser,RejectFriendRequest)
 
 export default router;
