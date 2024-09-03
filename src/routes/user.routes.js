@@ -14,7 +14,7 @@ import { userProfile, users } from "../controllers/usersDetails/userDetails.cont
 import { compareUserWithAllOthers } from "../controllers/userMatchPercent/userMatchPercent.js";
 import { editReel } from "../controllers/profile/reel.controller.js";
 import { acceptFriendRequest, sendFriendRequest } from "../controllers/profile/friendRequestController.js";
-
+import{RejectFriendRequest} from "../controllers/profile/rejectFriendRequest.controller.js"
 const router = new Router();
 
 // Routes from emailotp branch
@@ -66,5 +66,8 @@ router.patch('/send/:to', verifyUser, sendFriendRequest);
 
 // Route to accept a friend request
 router.patch('/accept/:from', verifyUser, acceptFriendRequest);
+
+//Router to Reject reguest
+router.patch('/reject/:from',RejectFriendRequest)
 
 export default router;
