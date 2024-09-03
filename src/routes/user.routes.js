@@ -14,6 +14,7 @@ import { userProfile, users } from "../controllers/usersDetails/userDetails.cont
 import { compareUserWithAllOthers } from "../controllers/userMatchPercent/userMatchPercent.js";
 import { editReel } from "../controllers/profile/reel.controller.js";
 import { acceptFriendRequest, sendFriendRequest } from "../controllers/profile/friendRequestController.js";
+import { shortlistProfile } from '../controllers/profile/userController.js';
 
 const router = new Router();
 
@@ -66,5 +67,8 @@ router.patch('/send/:to', verifyUser, sendFriendRequest);
 
 // Route to accept a friend request
 router.patch('/accept/:from', verifyUser, acceptFriendRequest);
+
+// Route to shortlist a profile
+router.post('/shortlist/:profileId', verifyUser, shortlistProfile);
 
 export default router;

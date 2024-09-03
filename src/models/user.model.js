@@ -50,7 +50,7 @@ const userSchema = new Schema(
         }],
         friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
         requestedLists: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-        shortListed:[{ type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
+        shortlistedProfiles:[{ type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
         shortListedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
         rejected:[{ type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
         forgotPasswordToken: String,
