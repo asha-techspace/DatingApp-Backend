@@ -3,11 +3,11 @@ import uploadOnCloudinary from "../../utils/uploadOnCloudinary.js";
 
 export const createProfile = async (req, res) => {
     try {
-        const { bio, gender, dob, hobbies, qualification, interests, drinking, smoking,lat,lon, city} = req.body;
+        const { bio, gender, age, hobbies, qualification, interests, drinking, smoking,lat,lon, city} = req.body;
         const profile = req?.files?.profile[0];
         const additionalImages = req?.files?.additionalImg;
         const reel = req?.files?.reel[0];
-        if([profile, additionalImages, reel, bio, gender, dob, hobbies, qualification, interests, drinking, smoking].some(field => !field || field.length === 0)) {
+        if([profile, additionalImages, reel, bio, gender, age, hobbies, qualification, interests, drinking, smoking].some(field => !field || field.length === 0)) {
             return res.status(400).json({
                 success: false,
                 message: "Please upload all required fields"
@@ -27,7 +27,7 @@ export const createProfile = async (req, res) => {
 
         const newProfile = await ProfileModel.create({
             user: req.user._id,
-            dob,
+            age,
             bio,
             gender,
             location: {
