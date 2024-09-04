@@ -8,8 +8,8 @@ const profileSchema = new Schema(
       ref: "User",
       required: true,
     },
-    dob: {
-      type: Date,
+    age: {
+      type: String,
     },
     bio: {
       type: String,
