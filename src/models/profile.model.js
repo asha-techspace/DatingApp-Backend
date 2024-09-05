@@ -49,9 +49,11 @@ const profileSchema = new Schema(
     },
     drinking: {
       type: String,
+      enum:['Never','Occasionally','Regularly','Quitting']
     },
     smoking: {
       type: String,
+      enum:['Never','Occasionally','Regularly','Quitting']
     },
     genderPreference: {
       type: String,
