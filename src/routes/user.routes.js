@@ -17,6 +17,7 @@ import { shortlistProfile ,removeShortlistedProfile} from '../controllers/profil
 import{RejectFriendRequest} from "../controllers/profile/rejectFriendRequest.controller.js"
 import { acceptFriendRequest,removeFriendRequest, sendFriendRequest } from "../controllers/profile/friendRequestController.js";
 import { viewedBy } from "../controllers/profile/viewedByController.js";
+import { getProfiles } from "../controllers/profile/profileController.js"
 
 
 
@@ -87,6 +88,9 @@ router.post('/shortlist/:profileId', verifyUser, shortlistProfile);
 router.delete('/delete-shortlist/:profileId', verifyUser, removeShortlistedProfile);
 
 router.patch('/viewed-by/:id', verifyUser, viewedBy);
+
+// Route to get profiles with sort and filter
+router.get('/profiles', verifyUser, getProfiles);
 
 
 
