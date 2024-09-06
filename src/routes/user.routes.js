@@ -10,7 +10,7 @@ import { createPartnerPreference, deletePartnerPreference, getPartnerPreferenceB
 import { getProfileByDesigination } from "../controllers/profileDesigination/ProfileDesigantion.controller.js";
 import {matchByLocation } from "../controllers/location/location.controller.js";
 import { getProfileByQualification } from "../controllers/profileQualification/profileQualification.controller.js";
-import { userProfile, users , getUserdetails } from "../controllers/usersDetails/userDetails.controller.js";
+import { userProfile, users , getUserdetails,getAllProfilesExceptLoggedInUser } from "../controllers/usersDetails/userDetails.controller.js";
 import { compareUserWithAllOthers } from "../controllers/userMatchPercent/userMatchPercent.js";
 import { editReel } from "../controllers/profile/reel.controller.js";
 import { shortlistProfile ,removeShortlistedProfile} from '../controllers/profile/shortListController.js';
@@ -64,6 +64,8 @@ router.get('/matchbylocation',verifyUser, matchByLocation)
 //get data users
 router.get("/users", users);
 router.get("/user",verifyUser, getUserdetails);
+router.get("/userdetails",verifyUser, getAllProfilesExceptLoggedInUser);
+
 
 router.get('/compare', verifyUser, compareUserWithAllOthers)
 
