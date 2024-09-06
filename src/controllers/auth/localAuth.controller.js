@@ -145,17 +145,17 @@ export const loginUser = async (req, res) => {
         userWithoutPassword.isActive = true;
         await userWithoutPassword.save();
 
-        const myprofile = await ProfileModel.findOne({user: user._id})
-        console.log(myprofile);
+        const myProfile = await ProfileModel.findOne({user: user._id})
+        console.log(myProfile);
         
 
         res.status(200)
             .cookie("token", token, cookieOptions)
             .cookie("user", {...userWithoutPassword, "isAuthenticated" : true}, cookieOptions)
+            .cookie("myProfile", myProfile, cookieOptions)
             .json({
                 success: true,
                 message: 'Login Successfully!',
-                myprofile
             });
     } catch (error) {
         console.error('Login error:', error);
