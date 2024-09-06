@@ -4,7 +4,7 @@ import UserModel from '../../models/user.model.js';
 
 export const RejectFriendRequest = async (req, res) => {
     try {
-      const userId = req.user// The ID of the user accepting the request
+      const userId = req.user._id// The ID of the user accepting the request
       const { from } = req.params;     // The ID of the user who sent the request
       if(!mongoose.Types.ObjectId.isValid(from)) {
         return res.status(400).json({
@@ -28,7 +28,6 @@ export const RejectFriendRequest = async (req, res) => {
       // Update the request status and add the friend
       friendRequest.status = 'rejected';
       user. rejected.push(from);
-      user.requestedLists.pull(from)
      
   
       // Save both users
