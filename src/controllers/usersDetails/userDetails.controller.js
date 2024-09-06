@@ -61,13 +61,42 @@ export const users = async (req, res) => {
 
   export const getAllProfilesExceptLoggedInUser = async (req, res) => {
     try {
-      const profiles = await ProfileModel.find({ _id: { $ne: req.user.id } }).populate('user');
+      // Fetch the current user's profile to get genderPreference
+      const currentUserProfile = await ProfileModel.findOne({ user: req.user.id });
+  
+      if (!currentUserProfile || !currentUserProfile.genderPreference) {
+        return res.status(404).json({
+          message: "User profile or gender preference not found"
+        });
+      }
+  
+      // Set preferred gender based on the user's preference
+      const userGenderPreference = currentUserProfile.genderPreference.trim();
+      let preferredGender = [];
+  
+      if (userGenderPreference === 'MEN') {
+        preferredGender = ['Male'];
+      } else if (userGenderPreference === 'WOMEN') {
+        preferredGender = ['Female'];
+      } else if (userGenderPreference === 'BOTH') {
+        preferredGender = ['Male', 'Female'];
+      }
+  
+      // Fetch profiles that match the preferred gender and exclude the current user
+      const profiles = await ProfileModel.find({
+        user: { $ne: req.user.id }, // Exclude logged-in user
+        gender: { $in: preferredGender } // Filter based on gender preference
+      }).populate('user');
+  
+      // Return the filtered profiles
       res.status(200).json(profiles);
+  
     } catch (error) {
       console.error("Error fetching profiles:", error);
       res.status(500).json({ error: "Failed to fetch profiles" });
     }
   };
+  
 
 
   export const getUserdetails=async(req,res)=>{
