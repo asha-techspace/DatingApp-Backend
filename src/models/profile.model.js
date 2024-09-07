@@ -15,22 +15,9 @@ const profileSchema = new Schema(
       type: String,
     },
     location: {
-      type: {
-        type: String,
-        enum: ["Point"],
-        required: true,
-      },
-      coordinates: {
-        type: [Number],
-        required: true,
-      },
-      place: {
-        type: String,
-      }
+      type: String
     },
-    distance: {
-      type: Number,
-    },
+  
     age: {
       type: Number,
     },
