@@ -1,54 +1,83 @@
+import mongoose, { Schema } from "mongoose";
+import { ObjectId } from "mongodb";
 
-import mongoose from 'mongoose';
-
-const ProfileSchema = new mongoose.Schema(
-    {
-        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-        bio: { type: String, required: true },
-        age: { type: Number, required: true },
-        gender: { type: String, required: true },
-        location: {
-            type: {
-                type: String,
-                enum: ['Point'],
-                default: 'Point',
-            },
-            place: { type: String, required: true },
-            coordinates: {
-                type: [Number], // [longitude, latitude]
-                index: '2dsphere',
-            },
-        },
-        hobbies: { type: String, required: true },
-        interests: { type: String, required: true },
-        smoking: { type: String, required: true },
-        drinking: { type: String, required: true },
-        qualification: { type: String, required: true },
-        profileImage: {
-            publicId: { type: String, required: true },
-            url: { type: String, required: true },
-        },
-        additionalImage: [
-            {
-                url: { type: String, required: true },
-                publicId: { type: String, required: true },
-            },
-        ],
-        reel: {
-            publicId: { type: String, required: true },
-            url: { type: String, required: true },
-        },
-        // Additional fields for filtering
-        languages: { type: String }, // e.g., "English, Hindi"
-        relationshipGoals: { type: String }, // e.g., "Serious Relationship, Friendship"
-        popularity: { type: Number, default: 0 }, // Example field
-        lastActive: { type: Date, default: Date.now }, // Example field
+const profileSchema = new Schema(
+  {
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
-    {
-        timestamps: true,
-    }
+    age: {
+      type: String,
+    },
+    bio: {
+      type: String,
+    },
+    location: {
+      type: String
+    },
+  
+    age: {
+      type: Number,
+    },
+    gender: {
+      type: String,
+    },
+    hobbies: {
+      type: String,
+    },
+    qualification: {
+      type: String,
+      required: true,
+    },
+    interests: {
+      type: [String],
+    },
+    drinking: {
+      type: String,
+      enum:['Never','Occasionally','Regularly','Quitting']
+    },
+    smoking: {
+      type: String,
+      enum:['Never','Occasionally','Regularly','Quitting']
+    },
+    genderPreference: {
+      type: String,
+      enum: ["MEN", "WOMEN", "BOTH"],
+    },
+    profileImage: {
+      publicId: String,
+      url: String,
+    },
+    additionalImage: [
+      {
+        publicId: String,
+        url: String,
+      },
+    ],
+    reel: {
+      publicId: String,
+      url: String,
+    },
+    relationshipGoal: {
+      type: String,
+    },
+    doNotShowFor: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+  },
+  {
+    timestamps: true,
+  }
 );
 
-const ProfileModel = mongoose.model('Profile', ProfileSchema);
+// Adding geospatial index for location field
+profileSchema.index({ location: "2dsphere" });
+
+const ProfileModel = mongoose.model('Profile', profileSchema);
 
 export default ProfileModel;

@@ -1,4 +1,4 @@
-/* import locationModel from '../../models/location.model.js';
+import LocationModel from '../../models/location.model.js';
 import ProfileModel from '../../models/profile.model.js';
 
 export const getLocation = async (req, res) => {
@@ -10,11 +10,11 @@ export const getLocation = async (req, res) => {
 
   try {
     // Find the existing location document for the user
-    let location = await locationModel.findOne({ user: user });
+    let location = await LocationModel.findOne({ user: user });
 
     if (!location) {
       // If no document exists, create a new one
-      location = new locationModel({
+      location = new LocationModel({
         user: user,
         location: {
           type: "Point",
@@ -39,43 +39,12 @@ export const getLocation = async (req, res) => {
   }
 };
 
-export const findNearByUser = async (req, res) => {
-  const { latitude, longitude } = req.query;
-  const currentUser = req.user._id;
-
-  try {
-    const nearByUsers = await locationModel.find({
-      location: {
-        $near: {
-          $geometry: {
-            type: "Point",
-            coordinates: [parseFloat(longitude), parseFloat(latitude)],
-          },
-          $maxDistance: 10000,
-        },
-      },
-      user: { $ne: currentUser },
-    })
-
-    const userIds = nearByUsers.map(userLocation => userLocation.user);
-
-    const userDetails = await ProfileModel.find({user:{$in:userIds}})
-    res.json(userDetails)
-  } catch (error) {
-    res.status(500).json({ error: "An error occurred" });
-    console.log(error);
-  }
-};
- */
-import ProfileModel from "../../models/profile.model.js";
-import mongoose from "mongoose"; // Import mongoose for objectId in lookup if needed
-
 export const matchByLocation = async (req, res) => {
   const userId = req.user._id;
 
   try {
     // Retrieve current user's profile to get location and gender preference
-    const currentUserProfile = await ProfileModel.findOne({ user: userId }).populate('user');
+    const currentUserProfile = await ProfileModel.findOne({ user: userId });
     if (!currentUserProfile) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -131,7 +100,7 @@ export const matchByLocation = async (req, res) => {
           profileImage: 1,
           user: 1,
           location: 1,
-          age:1,
+          age: 1,
           distance: { $divide: ["$distance", 1000] }, // Convert distance to kilometers
           firstName: "$userDetails.firstName", // Add firstName from user
           lastName: "$userDetails.lastName",  // Add lastName from user
@@ -145,5 +114,3 @@ export const matchByLocation = async (req, res) => {
     res.status(500).json({ error: "Error occurred while finding nearby users" });
   }
 };
-
-
