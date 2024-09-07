@@ -29,6 +29,9 @@ export const viewedBy = async (req, res) => {
             { new: true }
         );
 
+        console.log(updatedUser);
+        
+
         if (!updatedUser) {
             return res.status(404).json({
                 success: false,

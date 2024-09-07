@@ -4,53 +4,53 @@ const partnerPreferenceSchema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    // required: true
   },
   ageRange: {
     type: [Number], // [minAge, maxAge]
-    required: true
+    // required: true
   },
   gender: {
     type: String,
-    enum: ['Male', 'Female', 'Other'],
-    required: true
+    enum: ['Both','Male', 'Female', 'Other'],
+    // required: true
   },
   locations: {
     type: [String], // Array of location strings
-    required: true
+    // required: true
   },
   interests: {
     type: [String], // Array of interest strings
-    required: true
+    // required: true
   },
   relationshipGoals: {
     type: String,
-    required: true
+    // required: true
   },
   educationLevel: {
     type: String,
     enum: ['High School', 'Bachelor', 'Master', 'PhD'], // Adjust according to your options
-    required: true
+    // required: true
   },
-  heightRange: {
+  height: {
     type: [Number], // [minHeight, maxHeight]
-    required: true
+    // required: true
   },
   weightRange: {
     type: [Number], // [minWeight, maxWeight]
-    required: true
+    // required: true
   },
   lifestyleChoices: {
     type: String,
-    required: true
+    // required: true
   },
   religion: {
     type: String,
-    required: true
+    // required: true
   },
   occupation: {
     type: String,
-    required: true
+    // required: true
   },
 }, {
   timestamps: true,
