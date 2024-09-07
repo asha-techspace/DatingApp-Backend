@@ -10,10 +10,15 @@ import { createPartnerPreference, deletePartnerPreference, getPartnerPreferenceB
 import { getProfileByDesigination } from "../controllers/profileDesigination/ProfileDesigantion.controller.js";
 import {matchByLocation } from "../controllers/location/location.controller.js";
 import { getProfileByQualification } from "../controllers/profileQualification/profileQualification.controller.js";
-import { userProfile, users } from "../controllers/usersDetails/userDetails.controller.js";
+import { userProfile, users , getUserdetails,getAllProfilesExceptLoggedInUser } from "../controllers/usersDetails/userDetails.controller.js";
 import { compareUserWithAllOthers } from "../controllers/userMatchPercent/userMatchPercent.js";
 import { editReel } from "../controllers/profile/reel.controller.js";
-import { acceptFriendRequest, sendFriendRequest } from "../controllers/profile/friendRequestController.js";
+import { shortlistProfile ,removeShortlistedProfile} from '../controllers/profile/shortListController.js';
+import{RejectFriendRequest} from "../controllers/profile/rejectFriendRequest.controller.js"
+import { acceptFriendRequest,removeFriendRequest, sendFriendRequest } from "../controllers/profile/friendRequestController.js";
+import { viewedBy } from "../controllers/profile/viewedByController.js";
+
+
 
 const router = new Router();
 
@@ -40,7 +45,7 @@ router.post('/job_details', verifyUser, jobDetails);
 router.patch('/more_job_details', verifyUser, moreJobDetails);
 
 //partner preferences
-router.post('/preferences', createPartnerPreference);
+router.post('/preferences/:id', createPartnerPreference);
 router.get('/preferences/:id', getPartnerPreferenceById);
 router.put('/preferences/:id', updatePartnerPreference);
 router.delete('/preferences/:id', deletePartnerPreference);
@@ -58,13 +63,32 @@ router.get('/matchbylocation',verifyUser, matchByLocation)
 
 //get data users
 router.get("/users", users);
+router.get("/user",verifyUser, getUserdetails);
+router.get("/userdetails",verifyUser, getAllProfilesExceptLoggedInUser);
+
 
 router.get('/compare', verifyUser, compareUserWithAllOthers)
 
 // Route to send a friend request
 router.patch('/send/:to', verifyUser, sendFriendRequest);
+router.delete('/friend-request/:to',verifyUser, removeFriendRequest);
 
 // Route to accept a friend request
 router.patch('/accept/:from', verifyUser, acceptFriendRequest);
+
+
+//Route to Reject reguest
+router.patch('/reject/:from',verifyUser,RejectFriendRequest)
+
+
+// Route to shortlist a profile
+router.post('/shortlist/:profileId', verifyUser, shortlistProfile);
+
+router.delete('/delete-shortlist/:profileId', verifyUser, removeShortlistedProfile);
+
+router.patch('/viewed-by/:id', verifyUser, viewedBy);
+
+
+
 
 export default router;

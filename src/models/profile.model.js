@@ -8,8 +8,8 @@ const profileSchema = new Schema(
       ref: "User",
       required: true,
     },
-    dob: {
-      type: Date,
+    age: {
+      type: String,
     },
     bio: {
       type: String,
@@ -36,9 +36,11 @@ const profileSchema = new Schema(
     },
     drinking: {
       type: String,
+      enum:['Never','Occasionally','Regularly','Quitting']
     },
     smoking: {
       type: String,
+      enum:['Never','Occasionally','Regularly','Quitting']
     },
     genderPreference: {
       type: String,

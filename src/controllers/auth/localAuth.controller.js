@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { generateToken } from '../../utils/generateToken.js';
 import { verificationEmail } from '../../utils/verificationEmail.js';
 import otpGenerator from 'otp-generator';
+import ProfileModel from '../../models/profile.model.js';
 
 
 const cookieOptions = {
@@ -143,9 +144,15 @@ export const loginUser = async (req, res) => {
         const userWithoutPassword = await UserModel.findById(user._id).select('-password');
         userWithoutPassword.isActive = true;
         await userWithoutPassword.save();
+
+        const myProfile = await ProfileModel.findOne({user: user._id})
+        console.log(myProfile);
+        
+
         res.status(200)
             .cookie("token", token, cookieOptions)
             .cookie("user", {...userWithoutPassword, "isAuthenticated" : true}, cookieOptions)
+            .cookie("myProfile", myProfile, cookieOptions)
             .json({
                 success: true,
                 message: 'Login Successfully!',
