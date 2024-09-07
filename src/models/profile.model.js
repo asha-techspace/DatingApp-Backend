@@ -8,9 +8,6 @@ const profileSchema = new Schema(
       ref: "User",
       required: true,
     },
-    age: {
-      type: String,
-    },
     bio: {
       type: String,
     },
