@@ -3,7 +3,7 @@ import uploadOnCloudinary from "../../utils/uploadOnCloudinary.js";
 
 export const createProfile = async (req, res) => {
     try {
- const { bio, gender, dob, hobbies, qualification, interests, drinking, smoking, location, lat, lon, city } = req.body;
+ const { bio, gender, age, hobbies, qualification, interests, drinking, smoking, location, lat, lon, city } = req.body;
         const profile = req?.files?.profile[0];
         const additionalImages = req?.files?.additionalImg;
         const reel = req?.files?.reel[0];
