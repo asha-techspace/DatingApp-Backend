@@ -1,4 +1,5 @@
-/* import locationModel from '../../models/location.model.js';
+import LocationModel from '../../models/location.model.js';
+import locationModel from '../../models/location.model.js';
 import ProfileModel from '../../models/profile.model.js';
 
 export const getLocation = async (req, res) => {
@@ -39,43 +40,13 @@ export const getLocation = async (req, res) => {
   }
 };
 
-export const findNearByUser = async (req, res) => {
-  const { latitude, longitude } = req.query;
-  const currentUser = req.user._id;
-
-  try {
-    const nearByUsers = await locationModel.find({
-      location: {
-        $near: {
-          $geometry: {
-            type: "Point",
-            coordinates: [parseFloat(longitude), parseFloat(latitude)],
-          },
-          $maxDistance: 10000,
-        },
-      },
-      user: { $ne: currentUser },
-    })
-
-    const userIds = nearByUsers.map(userLocation => userLocation.user);
-
-    const userDetails = await ProfileModel.find({user:{$in:userIds}})
-    res.json(userDetails)
-  } catch (error) {
-    res.status(500).json({ error: "An error occurred" });
-    console.log(error);
-  }
-};
- */
-
-import ProfileModel from "../../models/profile.model.js";
 
 export const matchByLocation = async (req, res) => {
   const userId = req.user._id;
 
   try {
     // Retrieve current user location
-    const user = await ProfileModel.findOne({ user: userId });
+    const user = await LocationModel.findOne({ user: userId });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -86,7 +57,7 @@ export const matchByLocation = async (req, res) => {
     }
 
     // Use aggregation to calculate distance and retrieve nearby users
-    const nearestUsers = await ProfileModel.aggregate([
+    const nearestUsers = await LocationModel.aggregate([
       {
         $geoNear: {
           near: { type: "Point", coordinates: [userLat, userLon] },
