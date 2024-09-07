@@ -2,32 +2,72 @@ import PartnerPreferenceModel from "../../models/partnerPreferance.model.js";
 
 const createPartnerPreference = async (req, res) => {
   try {
-    const { user, ageRange, gender, locations, interests, relationshipGoals, educationLevel, heightRange, weightRange, lifestyleChoices, religion, occupation } = req.body;
+    const user = req.params.id;
 
-    // Create a new PartnerPreference instance
-    const newPreference = new PartnerPreferenceModel({
-      user,
-      ageRange,
-      gender,
-      locations,
-      interests,
-      relationshipGoals,
-      educationLevel,
-      heightRange,
-      weightRange,
-      lifestyleChoices,
-      religion,
-      occupation,
-    });
+    const { 
+      ageRange, 
+      gender, 
+      locations, 
+      interests, 
+      relationshipGoals, 
+      educationLevel, 
+      height, 
+      weightRange, 
+      lifestyleChoices, 
+      religion, 
+      occupation 
+    } = req.body;
 
-    // Save the preference to the database
-    const savedPreference = await newPreference.save();
+    console.log(occupation);
+    
+    // Check if the user already has a preference
+    let existingPreference = await PartnerPreferenceModel.findOne({ user });
 
-    res.status(201).json(savedPreference);
+    if (existingPreference) {
+      // If preference exists, update it
+      existingPreference.ageRange = ageRange;
+      existingPreference.gender = gender;
+      existingPreference.locations = locations;
+      existingPreference.interests = interests;
+      existingPreference.relationshipGoals = relationshipGoals;
+      existingPreference.educationLevel = educationLevel;
+      existingPreference.height = height;
+      existingPreference.weightRange = weightRange;
+      existingPreference.lifestyleChoices = lifestyleChoices;
+      existingPreference.religion = religion;
+      existingPreference.occupation = occupation;
+
+      // Save the updated preference to the database
+      const updatedPreference = await existingPreference.save();
+      res.status(200).json(updatedPreference);
+    } else {
+      // If no existing preference, create a new one
+      const newPreference = new PartnerPreferenceModel({
+        user,
+        ageRange,
+        gender,
+        locations,
+        interests,
+        relationshipGoals,
+        educationLevel,
+        height,
+        weightRange,
+        lifestyleChoices,
+        religion,
+        occupation,
+      });
+
+      // Save the new preference to the database
+      const savedPreference = await newPreference.save();
+      res.status(201).json(savedPreference);
+    }
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create partner preference' });
+    res.status(500).json({ error: 'Failed to create or update partner preference' });
   }
 };
+
+
+
 
 const getPartnerPreferenceById = async (req, res) => {
   try {

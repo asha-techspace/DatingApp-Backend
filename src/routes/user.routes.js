@@ -45,7 +45,7 @@ router.post('/job_details', verifyUser, jobDetails);
 router.patch('/more_job_details', verifyUser, moreJobDetails);
 
 //partner preferences
-router.post('/preferences', createPartnerPreference);
+router.post('/preferences/:id', createPartnerPreference);
 router.get('/preferences/:id', getPartnerPreferenceById);
 router.put('/preferences/:id', updatePartnerPreference);
 router.delete('/preferences/:id', deletePartnerPreference);
