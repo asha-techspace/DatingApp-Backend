@@ -7,15 +7,13 @@ import passport from './middlewares/passport.middleWare.js'
 import session from "express-session";
 import authRoutes from "./routes/auth.routers.js"
 import locationRouter from "./routes/location.routers.js"
-
+import {server, app, io} from './socket/socket.js'
 
 
 import dotenv from 'dotenv'
 import {getStories, oneStory} from "./controllers/stories/stories.controller.js";
 dotenv.config()
 
-const app = new express();
-// dotenv
 
 
 app.use(
