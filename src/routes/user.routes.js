@@ -18,6 +18,7 @@ import{RejectFriendRequest} from "../controllers/profile/rejectFriendRequest.con
 import { acceptFriendRequest,removeFriendRequest, sendFriendRequest } from "../controllers/profile/friendRequestController.js";
 import { viewedBy } from "../controllers/profile/viewedByController.js";
 import { getProfiles } from "../controllers/profile/profileController.js"
+import { getMessages, sendMessage } from "../controllers/message/message.controller.js";
 
 
 
@@ -93,6 +94,8 @@ router.patch('/viewed-by/:id', verifyUser, viewedBy);
 router.get('/profiles', verifyUser, getProfiles);
 
 
+router.post("/messages/send/:id", sendMessage)
+router.get("/messages/send", getMessages)
 
 
 export default router;
