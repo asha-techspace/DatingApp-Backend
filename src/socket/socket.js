@@ -32,25 +32,14 @@ const getUser = (userId) => {
 
 // const userSocketMap = {}  // {userId: SocketId}
 io.on("connection", (socket) => {
-  socket.on("adduser", (userId) => {
-    addUser(userId, socket.id);
-    io.emit("getusers", users);
-  });
-  socket.on("sendMessage", ({ senderId, receiverId, text }) => {
-    const user = getUser(receiverId);
-    if (user) {
-      io.to(user.socketId).emit("getMessage", {
-        senderId,
-        text,
-      });
-    } else {
-      console.error(`User with ID ${receiverId} not found`);
-    }
-  });
-  socket.on("disconnect", () => {
-    console.log("A user disconnected");
-    removeUser(socket.id);
-    io.emit("getusers", users);
+  console.log(`User Connected: ${socket.id}`);
+
+  // socket.on("join_room", (data) => {
+  //   socket.join(data);
+  // });
+
+  socket.on("sendMessage", (data) => {
+    socket.broadcast.emit("getMessage",data)
   });
 });
 
