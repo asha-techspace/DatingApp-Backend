@@ -94,8 +94,8 @@ router.patch('/viewed-by/:id', verifyUser, viewedBy);
 router.get('/profiles', verifyUser, getProfiles);
 
 
-router.post("/messages/send/:id",verifyUser, sendMessage)
-router.get("/messages/send",verifyUser, getMessages)
+router.post("/messages/send/:id", sendMessage)
+router.get("/messages/send", getMessages)
 
 
 export default router;
