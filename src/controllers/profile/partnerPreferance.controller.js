@@ -70,9 +70,11 @@ const createPartnerPreference = async (req, res) => {
 
 
 const getPartnerPreferenceById = async (req, res) => {
+  console.log(req.params.id);
+  
   try {
-    const preference = await PartnerPreferenceModel.findById(req.params.id);
-
+    const preference = await PartnerPreferenceModel.findOne({user:req.params.id});
+  
     if (!preference) {
       return res.status(404).json({ error: 'Partner preference not found' });
     }
