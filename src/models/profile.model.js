@@ -72,8 +72,6 @@ const profileSchema = new Schema(
   }
 );
 
-// Adding geospatial index for location field
-profileSchema.index({ location: "2dsphere" });
 
 const ProfileModel = mongoose.model('Profile', profileSchema);
 
