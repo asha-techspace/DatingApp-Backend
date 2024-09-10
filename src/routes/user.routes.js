@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registerUser, generateOtpAndSend, loginUser } from "../controllers/auth/localAuth.controller.js";
+import { registerUser, generateOtpAndSend, loginUser } from '../controllers/auth/localAuth.controller.js'
 import { verifyUser } from "../middlewares/verifyjwt.middleware.js";
 import { createProfile } from "../controllers/profile/addProfile.controller.js";
 import upload from "../middlewares/multer.middleware.js";
@@ -19,7 +19,7 @@ import { acceptFriendRequest,removeFriendRequest, sendFriendRequest } from "../c
 import { viewedBy } from "../controllers/profile/viewedByController.js";
 import { getProfiles } from "../controllers/profile/profileController.js"
 import { getMessages, sendMessage } from "../controllers/message/message.controller.js";
-
+import { sendNotification, getNotificationsByUser, markNotificationAsRead, markAllAsRead } from '../controllers/notification/notificationController.js';
 
 
 const router = new Router();
@@ -84,7 +84,7 @@ router.patch('/reject/:from',verifyUser,RejectFriendRequest)
 
 
 // Route to shortlist a profile
-router.post('/shortlist/:profileId', verifyUser, shortlistProfile);
+router.post('/shortlist/:profileId', shortlistProfile);
 
 router.delete('/delete-shortlist/:profileId', verifyUser, removeShortlistedProfile);
 
@@ -93,9 +93,21 @@ router.patch('/viewed-by/:id', verifyUser, viewedBy);
 // Route to get profiles with sort and filter
 router.get('/profiles', verifyUser, getProfiles);
 
-
+// Route for messages
 router.post("/messages/send/:id",verifyUser, sendMessage)
 router.get("/messages/send",verifyUser, getMessages)
+
+// Route to send a notification
+router.post('/sendNotification/:id', sendNotification);
+
+// Route to get notifications for a user
+router.get('/:userId',verifyUser, getNotificationsByUser);
+
+// Route to mark a notification as read
+router.put('/:notificationId/read',verifyUser, markNotificationAsRead);
+
+// Route to mark all notifications as read
+router.put('/:userId/read-all',verifyUser, markAllAsRead);
 
 
 export default router;

@@ -1,8 +1,7 @@
-import app from "./app.js";
+// import app from "./app.js";
 import dotenv from 'dotenv';
 import databaseConnection from "./config/db.config.js";
 import { server } from "./socket/socket.js";
-
 
 dotenv.config({
     path: './.env'
