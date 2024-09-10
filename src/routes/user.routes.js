@@ -19,7 +19,7 @@ import { acceptFriendRequest,removeFriendRequest, sendFriendRequest } from "../c
 import { viewedBy } from "../controllers/profile/viewedByController.js";
 import { getProfiles } from "../controllers/profile/profileController.js"
 import { getMessages, sendMessage } from "../controllers/message/message.controller.js";
-
+import {getSortedAndFilteredUsers} from '../controllers/sortFilter/sortFilter.cotrller.js'
 
 
 const router = new Router();
@@ -93,6 +93,7 @@ router.patch('/viewed-by/:id', verifyUser, viewedBy);
 // Route to get profiles with sort and filter
 router.get('/profiles', verifyUser, getProfiles);
 
+router.post('/sortfilter/:id',getSortedAndFilteredUsers)
 
 router.post("/messages/send/:id",verifyUser, sendMessage)
 router.get("/messages/send",verifyUser, getMessages)
