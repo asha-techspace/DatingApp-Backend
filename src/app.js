@@ -10,6 +10,7 @@ import locationRouter from "./routes/location.routers.js"
 import {server, app, io} from './socket/socket.js'
 
 
+
 import dotenv from 'dotenv'
 import {getStories, oneStory} from "./controllers/stories/stories.controller.js";
 dotenv.config()
@@ -19,6 +20,7 @@ dotenv.config()
 app.use(
   cors({
     origin: "http://localhost:5173",
+    methods: ["GET", "POST","PUT","DELETE","PATCH"],
     credentials: true,
   })
 );
@@ -26,6 +28,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(cookieParser());
 
+// Handle preflight requests (OPTIONS)
+app.options('*', cors());
 
 // Configure session middleware
 app.use(
@@ -48,6 +52,9 @@ app.use("/api/v1/users", userRoute);
 app.get("/story/:id", oneStory)
 app.get("/story", getStories)
 
+// use location Routes
 app.use("/location", locationRouter)
+
+
 
 export default app

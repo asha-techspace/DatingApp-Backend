@@ -1,46 +1,47 @@
 import express from "express";
 import http from "http";
-import cors from "cors";
 import { Server } from "socket.io";
 
 const app = new express();
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST"],
-  },
+
 });
 
-let users = [];
+//Pass Socket.IO instance to the routes
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
 
-const addUser = (userId, socketId) => {
-    !users.some((user) => user.userId === userId) &&
-        users.push({ userId, socketId });
-};
+// Socket.IO events
+io.on('connection', (socket) => {
+  console.log('A user connected', socket.id);
+  
+  // Join a user room
+  socket.on('join-room', (userId) => {
+    socket.join(userId);
+    console.log(`User with ID ${userId} joined their room.`);
+  });
 
-const removeUser = (socketId) => {
-    users = users.filter(user => user.socketId !== socketId);
-};
-
-const getUser = (userId) => {
-    return users.find(user => user.userId === userId);
-};
-
-
-
-
-// const userSocketMap = {}  // {userId: SocketId}
-io.on("connection", (socket) => {
-  console.log(`User Connected: ${socket.id}`);
-
-  // socket.on("join_room", (data) => {
-  //   socket.join(data);
-  // });
-
-  socket.on("sendMessage", (data) => {
-    socket.broadcast.emit("getMessage",data)
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
   });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
 
 export { io, app, server };

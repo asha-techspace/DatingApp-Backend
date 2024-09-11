@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registerUser, generateOtpAndSend, loginUser } from "../controllers/auth/localAuth.controller.js";
+import { registerUser, generateOtpAndSend, loginUser } from '../controllers/auth/localAuth.controller.js'
 import { verifyUser } from "../middlewares/verifyjwt.middleware.js";
 import { createProfile } from "../controllers/profile/addProfile.controller.js";
 import upload from "../middlewares/multer.middleware.js";
@@ -8,7 +8,7 @@ import { setInterest } from "../controllers/profile/interest.controller.js";
 import { jobDetails, moreJobDetails } from "../controllers/profile/personalDetails.js";
 import { createPartnerPreference, deletePartnerPreference, getPartnerPreferenceById, updatePartnerPreference } from "../controllers/profile/partnerPreferance.controller.js";
 import { getProfileByDesigination } from "../controllers/profileDesigination/ProfileDesigantion.controller.js";
-import {matchByLocation } from "../controllers/location/location.controller.js";
+import {getLocation, matchByLocation } from "../controllers/location/location.controller.js";
 import { getProfileByQualification } from "../controllers/profileQualification/profileQualification.controller.js";
 import { userProfile, users , getUserdetails,getAllProfilesExceptLoggedInUser } from "../controllers/usersDetails/userDetails.controller.js";
 import { compareUserWithAllOthers } from "../controllers/userMatchPercent/userMatchPercent.js";
@@ -20,6 +20,9 @@ import { viewedBy } from "../controllers/profile/viewedByController.js";
 import { getProfiles } from "../controllers/profile/profileController.js"
 import { getMessages, sendMessage } from "../controllers/message/message.controller.js";
 import { getProfile, updateProfile } from "../controllers/Editprofile/Editprofile.js"
+import { sendNotification, getNotificationsByUser, markNotificationAsRead, markAllAsRead } from '../controllers/notification/notificationController.js';
+import {getSortedAndFilteredUsers} from '../controllers/sortFilter/sortFilter.cotrller.js'
+
 
 
 
@@ -61,7 +64,7 @@ router.get('/profile/:id',userProfile)
 
 //get profile by location
 
-
+router.post('/getlocation',verifyUser,getLocation)
 router.get('/matchbylocation',verifyUser, matchByLocation)
 
 //get data users
@@ -85,7 +88,7 @@ router.patch('/reject/:from',verifyUser,RejectFriendRequest)
 
 
 // Route to shortlist a profile
-router.post('/shortlist/:profileId', verifyUser, shortlistProfile);
+router.post('/shortlist/:profileId', shortlistProfile);
 
 router.delete('/delete-shortlist/:profileId', verifyUser, removeShortlistedProfile);
 
@@ -93,6 +96,8 @@ router.patch('/viewed-by/:id', verifyUser, viewedBy);
 
 // Route to get profiles with sort and filter
 router.get('/profiles', verifyUser, getProfiles);
+
+router.post('/sortfilter/:id',getSortedAndFilteredUsers)
 
 
 router.post("/messages/send/:id",verifyUser, sendMessage)
@@ -106,6 +111,18 @@ router.post('/update-profile',verifyUser, upload.fields([
     { name: 'reel', maxCount: 1 },
   ]), updateProfile);
   
+
+// Route to send a notification
+router.post('/sendNotification/:id', sendNotification);
+
+// Route to get notifications for a user
+router.get('/:userId',verifyUser, getNotificationsByUser);
+
+// Route to mark a notification as read
+router.put('/:notificationId/read',verifyUser, markNotificationAsRead);
+
+// Route to mark all notifications as read
+router.put('/:userId/read-all',verifyUser, markAllAsRead);
 
 
 export default router;
