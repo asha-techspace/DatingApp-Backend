@@ -10,7 +10,6 @@ import locationRouter from "./routes/location.routers.js"
 import {server, app, io} from './socket/socket.js'
 
 
-
 import dotenv from 'dotenv'
 import {getStories, oneStory} from "./controllers/stories/stories.controller.js";
 dotenv.config()
@@ -49,9 +48,6 @@ app.use("/api/v1/users", userRoute);
 app.get("/story/:id", oneStory)
 app.get("/story", getStories)
 
-// use location Routes
 app.use("/location", locationRouter)
-
-
 
 export default app
