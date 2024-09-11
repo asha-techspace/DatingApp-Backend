@@ -5,8 +5,8 @@ export const verificationEmail = async ({ userEmail, otp }) => {
     const transporter = nodemailer.createTransport({
         service: 'Gmail',
         auth: {
-            user: process.env.MAILTRAPER_USER,
-            pass: process.env.MAILTRAPER_PASS,
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
         },
     });
 

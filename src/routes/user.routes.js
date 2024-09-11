@@ -19,8 +19,10 @@ import { acceptFriendRequest,removeFriendRequest, sendFriendRequest } from "../c
 import { viewedBy } from "../controllers/profile/viewedByController.js";
 import { getProfiles } from "../controllers/profile/profileController.js"
 import { getMessages, sendMessage } from "../controllers/message/message.controller.js";
+import { getProfile, updateProfile } from "../controllers/Editprofile/Editprofile.js"
 import { sendNotification, getNotificationsByUser, markNotificationAsRead, markAllAsRead } from '../controllers/notification/notificationController.js';
 import {getSortedAndFilteredUsers} from '../controllers/sortFilter/sortFilter.cotrller.js'
+
 
 
 
@@ -100,6 +102,15 @@ router.post('/sortfilter/:id',getSortedAndFilteredUsers)
 
 router.post("/messages/send/:id",verifyUser, sendMessage)
 router.get("/messages/send",verifyUser, getMessages)
+router.get("/get-profile",verifyUser, getProfile)
+// router.post("/update-profile",verifyUser, updateProfile)
+
+router.post('/update-profile',verifyUser, upload.fields([
+    { name: 'profileImage', maxCount: 1 },
+    { name: 'additionalImg', maxCount: 3 },
+    { name: 'reel', maxCount: 1 },
+  ]), updateProfile);
+  
 
 // Route to send a notification
 router.post('/sendNotification/:id', sendNotification);
