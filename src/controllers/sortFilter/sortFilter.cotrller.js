@@ -5,12 +5,12 @@ import PreferenceModel from '../../models/partnerPreferance.model.js';
 export const getSortedAndFilteredUsers = async (req, res) => {
     const filterSort = req.body;
     const userId = req.params.id;
-console.log(filterSort);
+    console.log(filterSort);
 
 
     try {
         let query = {};
-        let sortQuery = {}; 
+        let sortQuery = {};
 
         // Check if sorting/filtering by age is requested
         if (filterSort.includes('age')) {
@@ -43,38 +43,47 @@ console.log(filterSort);
         }
 
         // Filter by location
-        if (filterSort.includes('location')) {
+        if (filterSort.includes('Location')) {
             const locationPreference = await PreferenceModel.findOne(
                 { user: userId },
-                { location: 1, _id: 0 } // Fetch location preference
+                { locations: 1, _id: 0 } // Fetch location preference
             );
+            console.log('location', locationPreference);
 
-            if (locationPreference && locationPreference.location) {
-                query.location = locationPreference.location; // Filter by location
+            if (locationPreference && locationPreference.locations && locationPreference.locations.length > 0) {
+                // Assuming `locations` is an array of preferred locations
+                const locationRegexArray = locationPreference.locations.map(
+                    location => new RegExp(`^${location.substring(0, 4)}`, 'i') // Match first 4 letters
+                );
+                query.location = { $in: locationRegexArray }; // Filter by location
+            } else {
+                // If location preference is empty or undefined, display all profiles
+                delete query.location; // Remove location filter from the query
             }
         }
 
-     // Filter by interests
-if (filterSort.includes('Interests/Hobbies')) {
-    const interestPreference = await PreferenceModel.findOne(
-        { user: userId },
-        { interests: 1, _id: 0 } // Fetch interests preference
-    );
 
-    if (interestPreference && interestPreference.interests && interestPreference.interests.length > 0) {
-        // Create regex patterns to match the first 3 letters of any preferred interest
-        const prefixPatterns = interestPreference.interests.map(interest => {
-            const prefix = interest.substring(0, 3); // Get the first 3 letters
-            const escapedPrefix = prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Escape special characters
-            return new RegExp(`\\b${escapedPrefix}`, 'i'); // Create a regex to match this prefix
-        });
+        // Filter by interests
+        if (filterSort.includes('Interests/Hobbies')) {
+            const interestPreference = await PreferenceModel.findOne(
+                { user: userId },
+                { interests: 1, _id: 0 } // Fetch interests preference
+            );
 
-        // Build $or condition to match if any of the prefixes are present in the comma-separated interests
-        query.$or = prefixPatterns.map(pattern => ({
-            interests: { $regex: pattern }
-        }));
-    }
-}
+            if (interestPreference && interestPreference.interests && interestPreference.interests.length > 0) {
+                // Create regex patterns to match the first 3 letters of any preferred interest
+                const prefixPatterns = interestPreference.interests.map(interest => {
+                    const prefix = interest.substring(0, 3); // Get the first 3 letters
+                    const escapedPrefix = prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Escape special characters
+                    return new RegExp(`\\b${escapedPrefix}`, 'i'); // Create a regex to match this prefix
+                });
+
+                // Build $or condition to match if any of the prefixes are present in the comma-separated interests
+                query.$or = prefixPatterns.map(pattern => ({
+                    interests: { $regex: pattern }
+                }));
+            }
+        }
 
         console.log(query);
 
