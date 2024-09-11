@@ -80,7 +80,9 @@ export const compareUserWithAllOthers = async (req, res) => {
             gender: userProfile.genderPreference === 'MEN' ? 'Male' :
                     userProfile.genderPreference === 'WOMEN' ? 'Female' :
                     { $in: ['Male', 'Female'] }
-        }).lean();
+        })
+        .lean()
+        .sort({ createdAt: -1 });
 
         if (allProfiles.length === 0) {
             return res.status(404).json({ message: 'No other users found for comparison.' });
