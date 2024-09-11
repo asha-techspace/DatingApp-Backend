@@ -1,18 +1,14 @@
 import express from "express";
 import http from "http";
-import cors from "cors";
 import { Server } from "socket.io";
 
 const app = new express();
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST"],
-  },
+
 });
 
-// Pass Socket.IO instance to the routes
+//Pass Socket.IO instance to the routes
 app.use((req, res, next) => {
   req.io = io;
   next();
