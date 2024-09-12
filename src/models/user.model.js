@@ -44,6 +44,10 @@ const userSchema = new Schema(
             type: Boolean,
             default: false
         },
+        isPrime: {
+            type: Boolean,
+            default: false
+        },
         friendRequests: [{
             from: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
             status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' }
