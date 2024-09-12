@@ -7,8 +7,12 @@ export const getSortedAndFilteredUsers = async (req, res) => {
     const userId = req.params.id;
     console.log(filterSort);
 
-
     try {
+        // Check if there are any filters in the filterSort array
+        if (!filterSort || filterSort.length === 0) {
+            return res.status(200).json([]); // Return an empty array if no filters are provided
+        }
+
         let query = {};
         let sortQuery = {};
 
@@ -61,7 +65,6 @@ export const getSortedAndFilteredUsers = async (req, res) => {
                 delete query.location; // Remove location filter from the query
             }
         }
-
 
         // Filter by interests
         if (filterSort.includes('Interests/Hobbies')) {
