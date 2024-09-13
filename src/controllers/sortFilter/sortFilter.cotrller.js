@@ -24,14 +24,13 @@ export const getSortedAndFilteredUsers = async (req, res) => {
                 { ageRange: 1, _id: 0 } // Only get the ageRange field
             );
 
-            if (!preferAge) {
-                return res.status(404).json({ message: 'No age preference found for this user' });
+            if (!preferAge || !preferAge.ageRange) {
+                return res.status(200).json([]); // Return an empty array if age preference is missing
             }
 
             const [minAge, maxAge] = preferAge.ageRange; // Destructure age range
             query.age = { $gte: minAge, $lte: maxAge }; // Filter by age range
-            // Set the sort query for age in ascending order
-            sortQuery.age = 1;
+            sortQuery.age = 1; // Set the sort query for age in ascending order
         }
 
         // Filter by gender
@@ -41,9 +40,11 @@ export const getSortedAndFilteredUsers = async (req, res) => {
                 { gender: 1, _id: 0 } // Fetch gender preference
             );
 
-            if (genderPreference && genderPreference.gender) {
-                query.gender = genderPreference.gender; // Filter by gender
+            if (!genderPreference || !genderPreference.gender) {
+                return res.status(200).json([]); // Return an empty array if gender preference is missing
             }
+
+            query.gender = genderPreference.gender; // Filter by gender
         }
 
         // Filter by location
@@ -54,16 +55,15 @@ export const getSortedAndFilteredUsers = async (req, res) => {
             );
             console.log('location', locationPreference);
 
-            if (locationPreference && locationPreference.locations && locationPreference.locations.length > 0) {
-                // Assuming `locations` is an array of preferred locations
-                const locationRegexArray = locationPreference.locations.map(
-                    location => new RegExp(`^${location.substring(0, 4)}`, 'i') // Match first 4 letters
-                );
-                query.location = { $in: locationRegexArray }; // Filter by location
-            } else {
-                // If location preference is empty or undefined, display all profiles
-                delete query.location; // Remove location filter from the query
+            if (!locationPreference || !locationPreference.locations || locationPreference.locations.length === 0) {
+                return res.status(200).json([]); // Return an empty array if location preference is missing
             }
+
+            // Assuming `locations` is an array of preferred locations
+            const locationRegexArray = locationPreference.locations.map(
+                location => new RegExp(`^${location.substring(0, 4)}`, 'i') // Match first 4 letters
+            );
+            query.location = { $in: locationRegexArray }; // Filter by location
         }
 
         // Filter by interests
@@ -73,19 +73,21 @@ export const getSortedAndFilteredUsers = async (req, res) => {
                 { interests: 1, _id: 0 } // Fetch interests preference
             );
 
-            if (interestPreference && interestPreference.interests && interestPreference.interests.length > 0) {
-                // Create regex patterns to match the first 3 letters of any preferred interest
-                const prefixPatterns = interestPreference.interests.map(interest => {
-                    const prefix = interest.substring(0, 3); // Get the first 3 letters
-                    const escapedPrefix = prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Escape special characters
-                    return new RegExp(`\\b${escapedPrefix}`, 'i'); // Create a regex to match this prefix
-                });
-
-                // Build $or condition to match if any of the prefixes are present in the comma-separated interests
-                query.$or = prefixPatterns.map(pattern => ({
-                    interests: { $regex: pattern }
-                }));
+            if (!interestPreference || !interestPreference.interests || interestPreference.interests.length === 0) {
+                return res.status(200).json([]); // Return an empty array if interest preference is missing
             }
+
+            // Create regex patterns to match the first 3 letters of any preferred interest
+            const prefixPatterns = interestPreference.interests.map(interest => {
+                const prefix = interest.substring(0, 3); // Get the first 3 letters
+                const escapedPrefix = prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Escape special characters
+                return new RegExp(`\\b${escapedPrefix}`, 'i'); // Create a regex to match this prefix
+            });
+
+            // Build $or condition to match if any of the prefixes are present in the comma-separated interests
+            query.$or = prefixPatterns.map(pattern => ({
+                interests: { $regex: pattern }
+            }));
         }
 
         console.log(query);
@@ -100,8 +102,20 @@ export const getSortedAndFilteredUsers = async (req, res) => {
             .sort(sortQuery) // Apply sorting by age
             .lean(); // Use lean to optimize performance by returning plain JS objects
 
-        // Check if sorting by newest is requested, then sort the profiles in-memory
+        // Check if sorting by newest is requested, then filter and sort the profiles
         if (filterSort.includes("NewestMember")) {
+            // Get the current date and the date from one day ago
+            const today = new Date();
+            const oneDayAgo = new Date();
+            oneDayAgo.setDate(today.getDate() - 2);
+
+            // Filter profiles where the createdAt date is within the last two days
+            profiles = profiles.filter(profile => {
+                const createdAt = new Date(profile.user.createdAt);
+                return createdAt >= oneDayAgo && createdAt <= today;
+            });
+
+            // Sort the filtered profiles by createdAt in descending order
             profiles = profiles.sort((a, b) => new Date(b.user.createdAt) - new Date(a.user.createdAt));
         }
 
