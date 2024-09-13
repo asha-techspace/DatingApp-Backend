@@ -46,7 +46,7 @@ export const matchBySpin = async (req, res) => {
         $geoNear: {
           near: { type: "Point", coordinates: [userLon, userLat] },
           distanceField: "distance",
-          maxDistance: 50000,
+          maxDistance: 5000, // 5km
           spherical: true,
         },
       },
