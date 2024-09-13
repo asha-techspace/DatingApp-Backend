@@ -8,7 +8,7 @@ import { setInterest } from "../controllers/profile/interest.controller.js";
 import { jobDetails, moreJobDetails } from "../controllers/profile/personalDetails.js";
 import { createPartnerPreference, deletePartnerPreference, getPartnerPreferenceById, updatePartnerPreference } from "../controllers/profile/partnerPreferance.controller.js";
 import { getProfileByDesigination } from "../controllers/profileDesigination/ProfileDesigantion.controller.js";
-import {matchByLocation } from "../controllers/location/location.controller.js";
+import {getLocation, matchByLocation } from "../controllers/location/location.controller.js";
 import { getProfileByQualification } from "../controllers/profileQualification/profileQualification.controller.js";
 import { userProfile, users , getUserdetails,getAllProfilesExceptLoggedInUser } from "../controllers/usersDetails/userDetails.controller.js";
 import { compareUserWithAllOthers } from "../controllers/userMatchPercent/userMatchPercent.js";
@@ -19,8 +19,10 @@ import { acceptFriendRequest,removeFriendRequest, sendFriendRequest } from "../c
 import { viewedBy } from "../controllers/profile/viewedByController.js";
 import { getProfiles } from "../controllers/profile/profileController.js"
 import { getMessages, sendMessage } from "../controllers/message/message.controller.js";
+import { matchBySpin } from "../controllers/spinner/spin.controller.js";
 
-
+import { getProfile, updateProfile } from "../controllers/Editprofile/Editprofile.js"
+import {getSortedAndFilteredUsers} from '../controllers/sortFilter/sortFilter.cotrller.js'
 
 const router = new Router();
 
@@ -59,9 +61,11 @@ router.get('/profile/qualification',verifyUser,getProfileByQualification)
 router.get('/profile/:id',userProfile)
 
 //get profile by location
-
-
+router.post('/getlocation',verifyUser,getLocation)
 router.get('/matchbylocation',verifyUser, matchByLocation)
+
+//get profiles by spinning
+router.get('/matchbyspin',verifyUser,matchBySpin)
 
 //get data users
 router.get("/users", users);
@@ -93,9 +97,19 @@ router.patch('/viewed-by/:id', verifyUser, viewedBy);
 // Route to get profiles with sort and filter
 router.get('/profiles', verifyUser, getProfiles);
 
+router.post('/sortfilter/:id',getSortedAndFilteredUsers)
 
-router.post("/messages/send/:id", sendMessage)
-router.get("/messages/send", getMessages)
+router.post("/messages/send/:id",verifyUser, sendMessage)
+router.get("/messages/send",verifyUser, getMessages)
+router.get("/get-profile",verifyUser, getProfile)
+// router.post("/update-profile",verifyUser, updateProfile)
+
+router.post('/update-profile',verifyUser, upload.fields([
+    { name: 'profileImage', maxCount: 1 },
+    { name: 'additionalImg', maxCount: 3 },
+    { name: 'reel', maxCount: 1 },
+  ]), updateProfile);
+  
 
 
 export default router;

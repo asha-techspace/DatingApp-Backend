@@ -75,12 +75,10 @@ export const compareUserWithAllOthers = async (req, res) => {
             return res.status(404).json({ message: 'User profile not found.' });
         }
 
-        const allProfiles = await ProfileModel.find({ 
-            user: { $ne: userId },
-            gender: userProfile.genderPreference === 'MEN' ? 'Male' :
-                    userProfile.genderPreference === 'WOMEN' ? 'Female' :
-                    { $in: ['Male', 'Female'] }
-        }).lean();
+        // Fetch all profiles, removing the gender preference filter
+        const allProfiles = await ProfileModel.find({ user: { $ne: userId } })
+            .lean()
+            .sort({ createdAt: -1 });
 
         if (allProfiles.length === 0) {
             return res.status(404).json({ message: 'No other users found for comparison.' });
