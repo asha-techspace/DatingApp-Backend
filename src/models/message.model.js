@@ -1,28 +1,26 @@
 import mongoose from "mongoose";
 
+
 const MessageSchema = new mongoose.Schema(
   {
+    chatId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'conversations', // Reference to a Conversation schema
+      required: true,
+    },
     senderId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // Reference to a User schema
+      ref: 'users', // Reference to a User schema
       required: true,
     },
-    receiverId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // Reference to a Conversation schema
-      required: true,
-    },
-    message: {
+    text: {
       type: String,
       required: true,
-    },
-    conversationId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Conversation", // Reference to a User schema
-      default: [],
     },
   },
   { timestamps: true }
 );
+
+
 const MessageModel = mongoose.model("Message", MessageSchema);
 export default MessageModel;

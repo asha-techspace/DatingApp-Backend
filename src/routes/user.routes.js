@@ -10,7 +10,7 @@ import { createPartnerPreference, deletePartnerPreference, getPartnerPreferenceB
 import { getProfileByDesigination } from "../controllers/profileDesigination/ProfileDesigantion.controller.js";
 import {matchByLocation } from "../controllers/location/location.controller.js";
 import { getProfileByQualification } from "../controllers/profileQualification/profileQualification.controller.js";
-import { userProfile, users , getUserdetails,getAllProfilesExceptLoggedInUser } from "../controllers/usersDetails/userDetails.controller.js";
+import { userProfile, users , getUserdetails, getAllProfilesExceptLoggedInUser, getUserForMessage } from "../controllers/usersDetails/userDetails.controller.js";
 import { compareUserWithAllOthers } from "../controllers/userMatchPercent/userMatchPercent.js";
 import { editReel } from "../controllers/profile/reel.controller.js";
 import { shortlistProfile ,removeShortlistedProfile} from '../controllers/profile/shortListController.js';
@@ -18,7 +18,6 @@ import{RejectFriendRequest} from "../controllers/profile/rejectFriendRequest.con
 import { acceptFriendRequest,removeFriendRequest, sendFriendRequest } from "../controllers/profile/friendRequestController.js";
 import { viewedBy } from "../controllers/profile/viewedByController.js";
 import { getProfiles } from "../controllers/profile/profileController.js"
-import { getMessages, sendMessage } from "../controllers/message/message.controller.js";
 
 
 
@@ -69,6 +68,9 @@ router.get("/user",verifyUser, getUserdetails);
 router.get("/userdetails",verifyUser, getAllProfilesExceptLoggedInUser);
 
 
+
+router.get("/:id", getUserForMessage)
+
 router.get('/compare', verifyUser, compareUserWithAllOthers)
 
 // Route to send a friend request
@@ -94,8 +96,7 @@ router.patch('/viewed-by/:id', verifyUser, viewedBy);
 router.get('/profiles', verifyUser, getProfiles);
 
 
-router.post("/messages/send/:id",verifyUser, sendMessage)
-router.get("/messages/send",verifyUser, getMessages)
 
 
 export default router;
+

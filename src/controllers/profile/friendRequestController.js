@@ -48,6 +48,7 @@ export const sendFriendRequest = async (req, res) => {
   }
 };
 
+
 // Remove a Friend Request
 export const removeFriendRequest = async (req, res) => {
   try {
@@ -81,9 +82,6 @@ export const removeFriendRequest = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
-
-
 
 // Accept a Friend Request
 export const acceptFriendRequest = async (req, res) => {

@@ -7,15 +7,13 @@ import passport from './middlewares/passport.middleWare.js'
 import session from "express-session";
 import authRoutes from "./routes/auth.routers.js"
 import locationRouter from "./routes/location.routers.js"
-import {server, app, io} from './socket/socket.js'
-
-
+import chatRoutes from "./routes/chat.routes.js"
+import messageRoutes from "./routes/message.routes.js"
 import dotenv from 'dotenv'
 import {getStories, oneStory} from "./controllers/stories/stories.controller.js";
+
 dotenv.config()
-
-
-
+const app = express();
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -43,11 +41,14 @@ app.use(passport.session());
 // routes
 app.use("/", authRoutes)
 app.use("/api/v1/users", userRoute);
+app.use("/location", locationRouter)
+app.use("/chat",chatRoutes)
+app.use("/message", messageRoutes)
 
 // get user stories
 app.get("/story/:id", oneStory)
 app.get("/story", getStories)
 
-app.use("/location", locationRouter)
+
 
 export default app
