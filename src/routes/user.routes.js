@@ -19,6 +19,7 @@ import { acceptFriendRequest,removeFriendRequest, sendFriendRequest } from "../c
 import { viewedBy } from "../controllers/profile/viewedByController.js";
 import { getProfiles } from "../controllers/profile/profileController.js"
 import { getMessages, sendMessage } from "../controllers/message/message.controller.js";
+import { matchBySpin } from "../controllers/spinner/spin.controller.js";
 
 import { getProfile, updateProfile } from "../controllers/Editprofile/Editprofile.js"
 import {getSortedAndFilteredUsers} from '../controllers/sortFilter/sortFilter.cotrller.js'
@@ -62,9 +63,11 @@ router.get('/profile/qualification',verifyUser,getProfileByQualification)
 router.get('/profile/:id',userProfile)
 
 //get profile by location
-
 router.post('/getlocation',verifyUser,getLocation)
 router.get('/matchbylocation',verifyUser, matchByLocation)
+
+//get profiles by spinning
+router.get('/matchbyspin',verifyUser,matchBySpin)
 
 //get data users
 router.get("/users", users);

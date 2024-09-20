@@ -1,5 +1,7 @@
 import { Server } from "socket.io";
 
+
+
 const io = new Server(8800, {
   cors: {
     origin: "http://localhost:5173",
@@ -10,6 +12,7 @@ const io = new Server(8800, {
 let activeUsers = [];
 
 io.on("connection", (socket) => {
+
 
     console.log('A user connected', socket.id);
 
@@ -35,6 +38,7 @@ io.on("connection", (socket) => {
     console.log("User Disconnected", activeUsers);
     // send all active users to all users
     io.emit("get-users", activeUsers);
+  
   });
 
   // send message to a specific user
