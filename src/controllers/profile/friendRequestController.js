@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 import UserModel from '../../models/user.model.js';
+import { socket } from '../../app.js';
+import { createNotification } from '../notification/notificationController.js';
 
 // Send a Friend Request
 export const sendFriendRequest = async (req, res) => {
@@ -35,6 +37,17 @@ export const sendFriendRequest = async (req, res) => {
     // Save the receiver's updated information
     await receiver.save();
     await sender.save();
+
+     //create notification
+     createNotification("friend_request", from, to)
+    
+     // Emit notification to the receiver through standalone Socket.IO server
+     socket.emit('newNotification', {
+      type: 'friend_request',
+      sender: from,
+      receiver: to,
+     
+    });
 
     res.status(200).json({
       success: true,

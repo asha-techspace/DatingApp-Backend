@@ -1,43 +1,50 @@
-import express from "express";
-import http from "http";
 import { Server } from "socket.io";
 
-const app = new express();
-const server = http.createServer(app);
-const io = new Server(server, {
-
+const io = new Server(8800, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+  },
 });
 
-let users = [];
+let activeUsers = [];
 
-
-const addUser = (userId, socketId) => {
-    !users.some((user) => user.userId === userId) &&
-        users.push({ userId, socketId });
-};
-
-const removeUser = (socketId) => {
-    users = users.filter(user => user.socketId !== socketId);
-};
-
-const getUser = (userId) => {
-    return users.find(user => user.userId === userId);
-};
-
-
-
-
-// const userSocketMap = {}  // {userId: SocketId}
 io.on("connection", (socket) => {
-  console.log(`User Connected: ${socket.id}`);
 
-  // socket.on("join_room", (data) => {
-  //   socket.join(data);
-  // });
+    console.log('A user connected', socket.id);
 
-  socket.on("sendMessage", (data) => {
-    socket.broadcast.emit("getMessage",data)
+    // Join the socket room specific to the user
+    socket.on('joinRoom', (userId) => {
+      socket.join(userId); // userId is the unique identifier for the user
+    });
+
+  // add new User
+  socket.on("new-user-add", (newUserId) => {
+    // if user is not added previously
+    if (!activeUsers.some((user) => user.userId === newUserId)) {
+      activeUsers.push({ userId: newUserId, socketId: socket.id });
+      console.log("New User Connected", activeUsers);
+    }
+    // send all active users to new user
+    io.emit("get-users", activeUsers);
+  });
+
+  socket.on("disconnect", () => {
+    // remove user from active users
+    activeUsers = activeUsers.filter((user) => user.socketId !== socket.id);
+    console.log("User Disconnected", activeUsers);
+    // send all active users to all users
+    io.emit("get-users", activeUsers);
+  });
+
+  // send message to a specific user
+  socket.on("send-message", (data) => {
+    const { receiverId } = data;
+    const user = activeUsers.find((user) => user.userId === receiverId);
+    console.log("Sending from socket to :", receiverId)
+    console.log("Data: ", data)
+    if (user) {
+      io.to(user.socketId).emit("recieve-message", data);
+    }
   });
 });
-
-export { io, app, server };

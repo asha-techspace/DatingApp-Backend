@@ -22,6 +22,8 @@ import { getMessages, sendMessage } from "../controllers/message/message.control
 
 import { getProfile, updateProfile } from "../controllers/Editprofile/Editprofile.js"
 import {getSortedAndFilteredUsers} from '../controllers/sortFilter/sortFilter.cotrller.js'
+import { getNotifications } from '../controllers/notification/notificationController.js'
+
 
 const router = new Router();
 
@@ -107,6 +109,7 @@ router.post('/update-profile',verifyUser, upload.fields([
     { name: 'reel', maxCount: 1 },
   ]), updateProfile);
   
-
+  // get notifications
+router.get('/notifications',verifyUser, getNotifications)
 
 export default router;

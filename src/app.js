@@ -7,14 +7,16 @@ import passport from './middlewares/passport.middleWare.js'
 import session from "express-session";
 import authRoutes from "./routes/auth.routers.js"
 import locationRouter from "./routes/location.routers.js"
-import {server, app, io} from './socket/socket.js'
+import { io as Client } from 'socket.io-client'; 
 
 
 import dotenv from 'dotenv'
 import {getStories, oneStory} from "./controllers/stories/stories.controller.js";
 dotenv.config()
 
+const app = new express();
 
+const socket = Client('http://localhost:8800');
 
 app.use(
   cors({
@@ -53,4 +55,4 @@ app.get("/story", getStories)
 
 app.use("/location", locationRouter)
 
-export default app
+export {app, socket}
