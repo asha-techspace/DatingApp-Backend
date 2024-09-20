@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import UserModel from '../../models/user.model.js';
-
+import  {socket}  from '../../app.js';
 // Shortlist a Profile
 export const shortlistProfile = async (req, res) => {
   try {
@@ -50,6 +50,17 @@ export const shortlistProfile = async (req, res) => {
     // Save both updated documents
     await user.save();
     await profileToBeShortlisted.save();
+    
+        //create notification
+        createNotification("shortlist", userId, profileId)
+
+     // Emit notification to the receiver through standalone Socket.IO server
+     socket.emit('newNotification', {
+      type: 'shortlist',
+      sender: userId,
+      receiver: profileId,
+     
+    });
 
     res.status(200).json({
       success: true,
