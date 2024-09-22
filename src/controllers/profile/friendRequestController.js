@@ -6,9 +6,11 @@ import { createNotification } from '../notification/notificationController.js';
 // Send a Friend Request
 export const sendFriendRequest = async (req, res) => {
   try {
+    console.log(`req.params ${JSON.stringify(req.params)}`)
     const { to } = req.params;
     const from = req.user._id
     console.log(to);
+    console.log(from);
 
     if (!mongoose.Types.ObjectId.isValid(to)) {
       return res.status(400).json({
@@ -19,12 +21,13 @@ export const sendFriendRequest = async (req, res) => {
     // Find the sender and receiver
     const sender = await UserModel.findById(from);
     const receiver = await UserModel.findById(to);
+    //console.log(`Sender ${JSON.stringify(sender)} receiver ${JSON.stringify(receiver)} `);
 
     if (!sender || !receiver) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Check if a friend request already exists
+    //Check if a friend request already exists
     const existingRequest = receiver.friendRequests.find(res => res.from.toString() === from.toString());
     if (existingRequest) {
       return res.status(400).json({ message: 'Friend request already sent' });
@@ -42,22 +45,20 @@ export const sendFriendRequest = async (req, res) => {
      createNotification("friend_request", from, to)
     
      // Emit notification to the receiver through standalone Socket.IO server
-     socket.emit('newNotification', {
+    socket.emit('newNotification', {
       type: 'friend_request',
       sender: from,
       receiver: to,
      
     });
 
+      // Emit notification to the independent socket server
     res.status(200).json({
       success: true,
       message: 'Friend request sent successfully'
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    res.status(500).send('Error sending notification');
   }
 };
 

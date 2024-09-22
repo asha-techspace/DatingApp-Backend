@@ -1,15 +1,14 @@
 import { Server } from "socket.io";
 
-
-
 const io = new Server(8800, {
   cors: {
-    origin: "http://localhost:5173",
+    origin:  ["http://localhost:5173", "http://localhost:5000"],
     methods: ["GET", "POST"],
   },
 });
 
 let activeUsers = [];
+const users = {};
 
 io.on("connection", (socket) => {
 
@@ -19,6 +18,16 @@ io.on("connection", (socket) => {
     // Join the socket room specific to the user
     socket.on('joinRoom', (userId) => {
       socket.join(userId); // userId is the unique identifier for the user
+      console.log(`User with ID ${userId} joined room ${userId}`);
+    });
+
+    socket.on('joinRoom', (userId) => {
+      if (userId) {
+        // Store the mapping of userId to the current socket.id
+        users[userId] = socket.id;
+        socket.join(userId); // User joins a room based on their userId
+        console.log(`User with ID ${userId}-${socket.id} joined room ${userId}`);
+      }
     });
 
   // add new User
@@ -41,6 +50,17 @@ io.on("connection", (socket) => {
   
   });
 
+  //send notification
+  socket.on('sendNotification', ({ from, to, type }) => {
+    if (users[to]) {
+      io.to(users[to]).emit('newNotification', {
+        type,
+        sender: from,
+        receiver: to,
+      });
+      console.log(`Notification sent from ${from} to ${to}`);
+    }
+  });
   // send message to a specific user
   socket.on("send-message", (data) => {
     const { receiverId } = data;

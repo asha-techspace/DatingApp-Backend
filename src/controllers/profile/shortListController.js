@@ -1,11 +1,13 @@
 import mongoose from 'mongoose';
 import UserModel from '../../models/user.model.js';
 import  {socket}  from '../../app.js';
+import { createNotification } from '../notification/notificationController.js';
 // Shortlist a Profile
 export const shortlistProfile = async (req, res) => {
   try {
     const userId = req.user._id; // The ID of the logged-in user
     const { profileId } = req.params; // The ID of the profile to be shortlisted
+    console.log(`profileId:: ${profileId}`)
 
     if (!mongoose.Types.ObjectId.isValid(profileId)) {
       return res.status(400).json({
